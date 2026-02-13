@@ -14,7 +14,7 @@
  * PERSONAL INFORMATION
  * ============================================================================ */
 
-#define NAME                "Your Name"
+#define NAME                "Adler Nunez"
 #define DESIGNATION         "Embedded Systems Engineer"
 #define LOCATION           "Bengaluru, IN"
 #define STATUS             "ONLINE"              // ONLINE, BUSY, AVAILABLE, etc.
@@ -23,11 +23,11 @@
  * CONTACT DETAILS
  * ============================================================================ */
 
-#define EMAIL              "your.email@example.com"
-#define GITHUB_USERNAME    "yourusername"
-#define LINKEDIN_PROFILE   "yourprofile"
-#define BLOG_URL           "#"                   // Your blog URL or "#" if none
-#define PHONE              "+91 98765 43210"     // Optional
+#define EMAIL              "nunezadler2001@gmail.com"
+#define GITHUB_USERNAME    "adlernunez"
+#define LINKEDIN_PROFILE   "Adler Nunez"
+#define BLOG_URL           "https://www.linkedin.com/in/adler-nunez/"                   // Your blog URL or "#" if none
+#define PHONE              "+91 0000xxxxxx"     // Optional
 
 /* ============================================================================
  * SOCIAL MEDIA (Optional)
