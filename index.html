@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal // System Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-darker: #050812;
+            --primary: #00ff9f;
+            --secondary: #39ff14;
+            --accent: #ffb000;
+            --text-dim: #7a8a99;
+            --border-color: #00ff9f;
+            --glow: rgba(0, 255, 159, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT Scanline Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 255, 159, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* CRT Screen Glow */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                ellipse at center,
+                transparent 0%,
+                rgba(10, 14, 39, 0.6) 100%
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Terminal Window */
+        .terminal {
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 
+                0 0 20px var(--glow),
+                0 0 40px var(--glow),
+                inset 0 0 60px rgba(0, 255, 159, 0.05);
+            background: rgba(5, 8, 18, 0.95);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            animation: terminalBoot 0.5s ease-out;
+        }
+
+        @keyframes terminalBoot {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Terminal Header */
+        .terminal-header {
+            background: rgba(0, 255, 159, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid var(--primary);
+            background: transparent;
+            transition: all 0.3s;
+        }
+
+        .terminal-button:nth-child(1) { border-color: #ff5f56; }
+        .terminal-button:nth-child(2) { border-color: #ffb000; }
+        .terminal-button:nth-child(3) { border-color: #00ff9f; }
+
+        .terminal-button:hover {
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .terminal-title {
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            margin-left: 1rem;
+            text-shadow: 0 0 5px var(--primary);
+        }
+
+        /* Terminal Body */
+        .terminal-body {
+            padding: 2rem;
+            min-height: 500px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Header Section */
+        .header-box {
+            border: 1px solid var(--primary);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 159, 0.1), transparent);
+            animation: headerSweep 3s ease-in-out infinite;
+        }
+
+        @keyframes headerSweep {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+
+        .header-line {
+            opacity: 0;
+            animation: typeLine 0.05s ease-out forwards;
+            white-space: nowrap;
+        }
+
+        @keyframes typeLine {
+            to { opacity: 1; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--primary);
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Navigation */
+        .nav-container {
+            margin: 2rem 0;
+            padding: 1rem 0;
+            border-top: 1px dashed var(--text-dim);
+            border-bottom: 1px dashed var(--text-dim);
+        }
+
+        .nav-prompt {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-item {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.6rem 1.2rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '[';
+            margin-right: 0.3rem;
+        }
+
+        .nav-item::after {
+            content: ']';
+            margin-left: 0.3rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 255, 159, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+            box-shadow: 0 0 15px rgba(255, 176, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-item:hover::before {
+            content: '>>';
+        }
+
+        .nav-item:hover::after {
+            content: '<<';
+        }
+
+        .nav-item.active {
+            background: rgba(57, 255, 20, 0.15);
+            border-color: var(--secondary);
+            color: var(--secondary);
+            text-shadow: 0 0 10px var(--secondary);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .separator {
+            color: var(--text-dim);
+            margin: 1rem 0;
+        }
+
+        .content-text {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        /* Project List */
+        .project-item {
+            border-left: 2px solid var(--primary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .project-item:hover {
+            border-left-color: var(--accent);
+            transform: translateX(10px);
+        }
+
+        .project-item:hover .project-title {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .project-title {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            transition: all 0.3s;
+        }
+
+        .project-desc {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .project-tags {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            color: var(--primary);
+            font-size: 0.75rem;
+            border: 1px solid var(--primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 2px;
+        }
+
+        /* Skills Tree */
+        .skills-tree {
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .skill-category {
+            color: var(--secondary);
+            margin-top: 1rem;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .skill-name {
+            min-width: 150px;
+            color: var(--primary);
+        }
+
+        .skill-bar {
+            flex: 1;
+            max-width: 200px;
+            height: 16px;
+            border: 1px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            transition: width 1s ease-out;
+            position: relative;
+        }
+
+        .skill-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .skill-percent {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        /* Contact */
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 0.8rem;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .contact-item:hover {
+            border-color: var(--primary);
+            background: rgba(0, 255, 159, 0.05);
+            transform: translateX(5px);
+        }
+
+        .contact-label {
+            color: var(--secondary);
+            min-width: 100px;
+        }
+
+        .contact-value {
+            color: var(--primary);
+        }
+
+        .contact-link {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--primary);
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .footer-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-link {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+            transform: scale(1.1);
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch:hover::before,
+        .glitch:hover::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch:hover::before {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #ff00ff;
+            z-index: -1;
+        }
+
+        .glitch:hover::after {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite;
+            color: #00ffff;
+            z-index: -2;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-2px, 2px);
+            }
+            40% {
+                transform: translate(-2px, -2px);
+            }
+            60% {
+                transform: translate(2px, 2px);
+            }
+            80% {
+                transform: translate(2px, -2px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .terminal-body {
+                padding: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+            }
+
+            .nav-item {
+                width: 100%;
+                text-align: center;
+            }
+
+            .skill-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .skill-bar {
+                width: 100%;
+                max-width: none;
+            }
+
+            .footer-line {
+                flex-direction: column;
+            }
+        }
+
+        /* Loading Animation */
+        .boot-sequence {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-darker);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+        }
+
+        .boot-text {
+            text-align: left;
+        }
+
+        .boot-line {
+            opacity: 0;
+            animation: bootLine 0.1s ease-out forwards;
+        }
+
+        @keyframes bootLine {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Boot Sequence -->
+    <div class="boot-sequence" id="bootSequence">
+        <div class="boot-text" id="bootText"></div>
+    </div>
+
+    <div class="container">
+        <div class="terminal">
+            <!-- Terminal Header -->
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                </div>
+                <div class="terminal-title">SYSTEM_INTERFACE_v2.4.1</div>
+            </div>
+
+            <!-- Terminal Body -->
+            <div class="terminal-body">
+                <!-- Header Section -->
+                <div class="header-box" id="headerBox">
+                    <div class="header-line" style="animation-delay: 0.1s;">> SYSTEM INITIALIZED...</div>
+                    <div class="header-line" style="animation-delay: 0.2s;">> USER: <span class="glitch" data-text="[Your Name]">[Your Name]</span></div>
+                    <div class="header-line" style="animation-delay: 0.3s;">> DESIGNATION: Embedded Systems Engineer</div>
+                    <div class="header-line" style="animation-delay: 0.4s;">> STATUS: <span style="color: var(--secondary);">ONLINE</span></div>
+                    <div class="header-line" style="animation-delay: 0.5s;">> LOCATION: Bengaluru, IN</div>
+                    <div class="header-line" style="animation-delay: 0.6s;">> TIMESTAMP: <span id="timestamp"></span></div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-container">
+                    <div class="nav-prompt">> SELECT MODULE:</div>
+                    <div class="nav-menu">
+                        <button class="nav-item active" data-section="about">1 ABOUT.SYS</button>
+                        <button class="nav-item" data-section="projects">2 PROJECTS.EXE</button>
+                        <button class="nav-item" data-section="skills">3 SKILLS.DAT</button>
+                        <button class="nav-item" data-section="contact">4 CONTACT.LOG</button>
+                        <button class="nav-item" data-section="blog">5 BLOG.TXT</button>
+                    </div>
+                </div>
+
+                <!-- Content Sections -->
+                
+                <!-- About Section -->
+                <div class="content-section active" id="about">
+                    <div class="section-header">> cat about.txt</div>
+                    <div class="section-header">> Loading personal_info...</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    <div class="content-text">
+                        Embedded systems engineer specializing in IoT solutions, real-time firmware development, 
+                        and hardware-software integration. Passionate about creating efficient, scalable systems 
+                        that bridge the physical and digital worlds.
+                    </div>
+                    <div class="content-text">
+                        With expertise in STM32 and ESP32 microcontrollers, I design and develop solutions ranging 
+                        from sensor networks to complex automation systems. My approach combines low-level programming 
+                        skills with modern development practices to deliver robust, production-ready embedded applications.
+                    </div>
+                    <div class="content-text">
+                        <span style="color: var(--secondary);">> Specializations:</span><br>
+                        → STM32 Firmware Development<br>
+                        → ESP32 IoT Systems<br>
+                        → PCB Design & Prototyping<br>
+                        → Sensor Integration & Data Acquisition<br>
+                        → Wireless Communication (BLE, WiFi, LoRa)<br>
+                        → Real-Time Operating Systems (FreeRTOS)
+                    </div>
+                </div>
+
+                <!-- Projects Section -->
+                <div class="content-section" id="projects">
+                    <div class="section-header">> ls projects/</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    
+                    <div class="project-item">
+                        <div class="project-title">[PROJECT_01] IoT Smart Parking System</div>
+                        <div class="project-desc">
+                            Real-time parking availability monitoring system using ESP32 and ultrasonic sensors. 
+                            Features cloud connectivity, mobile app integration, and predictive analytics.
+                        </div>
+                        <div class="project-tags">
+                            <span class="tag">ESP32</span>
+                            <span class="tag">MQTT</span>
+                            <span class="tag">Cloud-IoT</span>
+                            <span class="tag">Mobile-App</span>
+                        </div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-title">[PROJECT_02] Audio Processing Unit</div>
+                        <div class="project-desc">
+                            Custom DSP implementation on STM32H7 for real-time audio filtering and effects. 
+                            Includes FFT analysis, parametric EQ, and dynamic range compression.
+                        </div>
+                        <div class="project-tags">
+                            <span class="tag">STM32H7</span>
+                            <span class="tag">DSP</span>
+                            <span class="tag">I2S</span>
+                            <span class="tag">CMSIS-DSP</span>
+                        </div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-title">[PROJECT_03] Mesh Network Implementation</div>
+                        <div class="project-desc">
+                            Self-healing wireless sensor network using ESP32 nodes. Implements custom routing 
+                            protocol optimized for low-power operation and extended range.
+                        </div>
+                        <div class="project-tags">
+                            <span class="tag">ESP-MESH</span>
+                            <span class="tag">WiFi</span>
+                            <span class="tag">Low-Power</span>
+                            <span class="tag">Networking</span>
+                        </div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-title">[PROJECT_04] Environmental Monitoring Station</div>
+                        <div class="project-desc">
+                            Multi-sensor data logger with STM32L4 for temperature, humidity, air quality, and 
+                            atmospheric pressure monitoring. Features SD card storage and LoRaWAN connectivity.
+                        </div>
+                        <div class="project-tags">
+                            <span class="tag">STM32L4</span>
+                            <span class="tag">LoRaWAN</span>
+                            <span class="tag">Sensors</span>
+                            <span class="tag">Data-Logging</span>
+                        </div>
+                    </div>
+
+                    <div class="content-text" style="margin-top: 2rem; color: var(--text-dim);">
+                        > For detailed project documentation and source code, visit my GitHub repository.
+                    </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="content-section" id="skills">
+                    <div class="section-header">> tree skills/</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    
+                    <div class="skills-tree">
+                        <div class="skill-category">├── Hardware</div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── STM32/ESP32</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="90"></div>
+                            </div>
+                            <div class="skill-percent">90%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── Circuit Design</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="75"></div>
+                            </div>
+                            <div class="skill-percent">75%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── PCB Layout</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="70"></div>
+                            </div>
+                            <div class="skill-percent">70%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   └── Sensor Integration</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="85"></div>
+                            </div>
+                            <div class="skill-percent">85%</div>
+                        </div>
+
+                        <div class="skill-category">├── Software</div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── C/C++</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="90"></div>
+                            </div>
+                            <div class="skill-percent">90%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── Python</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="80"></div>
+                            </div>
+                            <div class="skill-percent">80%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── FreeRTOS</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="75"></div>
+                            </div>
+                            <div class="skill-percent">75%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   └── Git/Version Control</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="85"></div>
+                            </div>
+                            <div class="skill-percent">85%</div>
+                        </div>
+
+                        <div class="skill-category">├── Protocols</div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── I2C/SPI/UART</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="90"></div>
+                            </div>
+                            <div class="skill-percent">90%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── MQTT/HTTP</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="80"></div>
+                            </div>
+                            <div class="skill-percent">80%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   ├── BLE/WiFi</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="75"></div>
+                            </div>
+                            <div class="skill-percent">75%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">│   └── LoRa/LoRaWAN</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="70"></div>
+                            </div>
+                            <div class="skill-percent">70%</div>
+                        </div>
+
+                        <div class="skill-category">└── Tools</div>
+                        <div class="skill-item">
+                            <div class="skill-name">    ├── EAGLE/KiCAD</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="70"></div>
+                            </div>
+                            <div class="skill-percent">70%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">    ├── STM32CubeIDE</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="85"></div>
+                            </div>
+                            <div class="skill-percent">85%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">    ├── VS Code</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="90"></div>
+                            </div>
+                            <div class="skill-percent">90%</div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">    └── Oscilloscope/Logic Analyzer</div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="80"></div>
+                            </div>
+                            <div class="skill-percent">80%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="content-section" id="contact">
+                    <div class="section-header">> cat contact.log</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-label">> EMAIL:</div>
+                        <div class="contact-value">
+                            <a href="mailto:your.email@example.com" class="contact-link">your.email@example.com</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-label">> GITHUB:</div>
+                        <div class="contact-value">
+                            <a href="https://github.com/yourusername" class="contact-link" target="_blank">github.com/yourusername</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-label">> LINKEDIN:</div>
+                        <div class="contact-value">
+                            <a href="https://linkedin.com/in/yourprofile" class="contact-link" target="_blank">linkedin.com/in/yourprofile</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-label">> LOCATION:</div>
+                        <div class="contact-value">Bengaluru, Karnataka, India</div>
+                    </div>
+
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    
+                    <div class="content-text" style="margin-top: 1.5rem;">
+                        <span style="color: var(--secondary);">> Open for opportunities in:</span><br>
+                        → Embedded Systems Development<br>
+                        → IoT Solution Architecture<br>
+                        → Firmware Consulting<br>
+                        → Technical Collaboration
+                    </div>
+
+                    <div class="content-text" style="margin-top: 1rem; color: var(--text-dim);">
+                        Feel free to reach out for project discussions, collaborations, or just to connect!
+                    </div>
+                </div>
+
+                <!-- Blog Section -->
+                <div class="content-section" id="blog">
+                    <div class="section-header">> cat blog.txt</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    
+                    <div class="project-item">
+                        <div class="project-title">[2024-12-15] Optimizing Power Consumption in ESP32 Applications</div>
+                        <div class="project-desc">
+                            Deep dive into ESP32 power modes and practical strategies for achieving months of 
+                            battery life in IoT devices. Includes code examples and measurement data.
+                        </div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-title">[2024-11-28] Building a Custom RTOS Task Scheduler</div>
+                        <div class="project-desc">
+                            Exploring the internals of FreeRTOS and implementing a minimal cooperative task 
+                            scheduler from scratch for educational purposes.
+                        </div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-title">[2024-10-10] PCB Design Best Practices for STM32</div>
+                        <div class="project-desc">
+                            Guidelines for power supply design, decoupling, signal integrity, and EMI considerations 
+                            when designing boards with high-speed microcontrollers.
+                        </div>
+                    </div>
+
+                    <div class="content-text" style="margin-top: 2rem; color: var(--text-dim);">
+                        > More articles coming soon. Follow my blog for updates on embedded systems, IoT, and electronics.
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="footer">
+                    <div class="separator">───────────────────────────────────────────────────────────</div>
+                    <div class="footer-line">
+                        <div>> UPTIME: <span id="uptime">00:00:00</span></div>
+                        <div>> LAST_COMMIT: <span style="color: var(--secondary);">2 days ago</span></div>
+                    </div>
+                    <div class="footer-line">
+                        <div class="social-links">
+                            <a href="https://github.com/yourusername" class="social-link" target="_blank">[GITHUB]</a>
+                            <a href="https://linkedin.com/in/yourprofile" class="social-link" target="_blank">[LINKEDIN]</a>
+                            <a href="mailto:your.email@example.com" class="social-link">[EMAIL]</a>
+                            <a href="#" class="social-link">[BLOG]</a>
+                        </div>
+                        <div>> SYSTEM_v2.4.1 © 2024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Boot Sequence
+        const bootSequence = [
+            'INITIALIZING SYSTEM...',
+            'LOADING CORE MODULES...',
+            'CHECKING SYSTEM INTEGRITY...',
+            'MOUNTING FILE SYSTEMS...',
+            'STARTING NETWORK SERVICES...',
+            'LOADING USER PROFILE...',
+            'SYSTEM READY.'
+        ];
+
+        function displayBootSequence() {
+            const bootText = document.getElementById('bootText');
+            let lineIndex = 0;
+
+            const interval = setInterval(() => {
+                if (lineIndex < bootSequence.length) {
+                    const line = document.createElement('div');
+                    line.className = 'boot-line';
+                    line.textContent = '> ' + bootSequence[lineIndex];
+                    line.style.animationDelay = '0s';
+                    bootText.appendChild(line);
+                    lineIndex++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('bootSequence').style.opacity = '0';
+                        document.getElementById('bootSequence').style.transition = 'opacity 0.5s';
+                        setTimeout(() => {
+                            document.getElementById('bootSequence').style.display = 'none';
+                            animateSkillBars();
+                        }, 500);
+                    }, 500);
+                }
+            }, 150);
+        }
+
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                
+                // Update active states
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Show selected section
+                contentSections.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === section) {
+                        content.classList.add('active');
+                        
+                        // Animate skill bars when skills section is shown
+                        if (section === 'skills') {
+                            setTimeout(animateSkillBars, 100);
+                        }
+                    }
+                });
+
+                // Flash effect
+                item.style.background = 'rgba(57, 255, 20, 0.3)';
+                setTimeout(() => {
+                    item.style.background = '';
+                }, 100);
+            });
+        });
+
+        // Animate skill bars
+        function animateSkillBars() {
+            const skillFills = document.querySelectorAll('.skill-fill');
+            skillFills.forEach((fill, index) => {
+                setTimeout(() => {
+                    const width = fill.dataset.width;
+                    fill.style.width = width + '%';
+                }, index * 50);
+            });
+        }
+
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
+            document.getElementById('timestamp').textContent = timestamp;
+        }
+
+        // Uptime counter
+        let uptimeSeconds = 0;
+        function updateUptime() {
+            uptimeSeconds++;
+            const hours = Math.floor(uptimeSeconds / 3600).toString().padStart(2, '0');
+            const minutes = Math.floor((uptimeSeconds % 3600) / 60).toString().padStart(2, '0');
+            const seconds = (uptimeSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('uptime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Console Easter Eggs
+        console.log('%c> SYSTEM ACCESS GRANTED', 'color: #00ff9f; font-family: monospace; font-size: 14px;');
+        console.log('%c> Welcome to the embedded systems terminal', 'color: #39ff14; font-family: monospace;');
+        console.log('%c> Type "help" for available commands', 'color: #7a8a99; font-family: monospace;');
+
+        window.help = function() {
+            console.log('%c────────────────────────────────────', 'color: #00ff9f; font-family: monospace;');
+            console.log('%cAvailable Commands:', 'color: #ffb000; font-family: monospace; font-weight: bold;');
+            console.log('%chelp     - Display this message', 'color: #00ff9f; font-family: monospace;');
+            console.log('%cabout    - Display about information', 'color: #00ff9f; font-family: monospace;');
+            console.log('%cskills   - List technical skills', 'color: #00ff9f; font-family: monospace;');
+            console.log('%cprojects - Show project portfolio', 'color: #00ff9f; font-family: monospace;');
+            console.log('%ccontact  - Display contact information', 'color: #00ff9f; font-family: monospace;');
+            console.log('%c────────────────────────────────────', 'color: #00ff9f; font-family: monospace;');
+        };
+
+        window.about = function() {
+            console.log('%cEmbedded Systems Engineer specializing in IoT and firmware development', 'color: #00ff9f; font-family: monospace;');
+        };
+
+        // Initialize
+        window.addEventListener('load', () => {
+            displayBootSequence();
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+            setInterval(updateUptime, 1000);
+        });
+
+        // Random glitch effect on page elements
+        setInterval(() => {
+            const elements = document.querySelectorAll('.project-title, .skill-name');
+            if (Math.random() > 0.95) {
+                const randomElement = elements[Math.floor(Math.random() * elements.length)];
+                randomElement.style.textShadow = '2px 0 #ff00ff, -2px 0 #00ffff';
+                setTimeout(() => {
+                    randomElement.style.textShadow = '0 0 5px var(--primary)';
+                }, 50);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
