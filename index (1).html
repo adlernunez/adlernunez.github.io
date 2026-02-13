@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal // System Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-darker: #050812;
+            --primary: #00ff9f;
+            --secondary: #39ff14;
+            --accent: #ffb000;
+            --text-dim: #7a8a99;
+            --border-color: #00ff9f;
+            --glow: rgba(0, 255, 159, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT Scanline Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 255, 159, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                ellipse at center,
+                transparent 0%,
+                rgba(10, 14, 39, 0.6) 100%
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .terminal {
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 
+                0 0 20px var(--glow),
+                0 0 40px var(--glow),
+                inset 0 0 60px rgba(0, 255, 159, 0.05);
+            background: rgba(5, 8, 18, 0.95);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            animation: terminalBoot 0.5s ease-out;
+        }
+
+        @keyframes terminalBoot {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .terminal-header {
+            background: rgba(0, 255, 159, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid var(--primary);
+            background: transparent;
+            transition: all 0.3s;
+        }
+
+        .terminal-button:nth-child(1) { border-color: #ff5f56; }
+        .terminal-button:nth-child(2) { border-color: #ffb000; }
+        .terminal-button:nth-child(3) { border-color: #00ff9f; }
+
+        .terminal-button:hover {
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .terminal-title {
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            margin-left: 1rem;
+            text-shadow: 0 0 5px var(--primary);
+        }
+
+        .terminal-body {
+            padding: 2rem;
+            min-height: 500px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .header-box {
+            border: 1px solid var(--primary);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 159, 0.1), transparent);
+            animation: headerSweep 3s ease-in-out infinite;
+        }
+
+        @keyframes headerSweep {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+
+        .header-line {
+            opacity: 0;
+            animation: typeLine 0.05s ease-out forwards;
+            white-space: nowrap;
+        }
+
+        @keyframes typeLine {
+            to { opacity: 1; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--primary);
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .nav-container {
+            margin: 2rem 0;
+            padding: 1rem 0;
+            border-top: 1px dashed var(--text-dim);
+            border-bottom: 1px dashed var(--text-dim);
+        }
+
+        .nav-prompt {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-item {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.6rem 1.2rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '[';
+            margin-right: 0.3rem;
+        }
+
+        .nav-item::after {
+            content: ']';
+            margin-left: 0.3rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 255, 159, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+            box-shadow: 0 0 15px rgba(255, 176, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-item:hover::before {
+            content: '>>';
+        }
+
+        .nav-item:hover::after {
+            content: '<<';
+        }
+
+        .nav-item.active {
+            background: rgba(57, 255, 20, 0.15);
+            border-color: var(--secondary);
+            color: var(--secondary);
+            text-shadow: 0 0 10px var(--secondary);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .separator {
+            color: var(--text-dim);
+            margin: 1rem 0;
+        }
+
+        .content-text {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .project-item {
+            border-left: 2px solid var(--primary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .project-item:hover {
+            border-left-color: var(--accent);
+            transform: translateX(10px);
+        }
+
+        .project-item:hover .project-title {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .project-title {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            transition: all 0.3s;
+        }
+
+        .project-desc {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .project-tags {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            color: var(--primary);
+            font-size: 0.75rem;
+            border: 1px solid var(--primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 2px;
+        }
+
+        .skills-tree {
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .skill-category {
+            color: var(--secondary);
+            margin-top: 1rem;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .skill-name {
+            min-width: 150px;
+            color: var(--primary);
+        }
+
+        .skill-bar {
+            flex: 1;
+            max-width: 200px;
+            height: 16px;
+            border: 1px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            transition: width 1s ease-out;
+            position: relative;
+        }
+
+        .skill-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .skill-percent {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 0.8rem;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .contact-item:hover {
+            border-color: var(--primary);
+            background: rgba(0, 255, 159, 0.05);
+            transform: translateX(5px);
+        }
+
+        .contact-label {
+            color: var(--secondary);
+            min-width: 100px;
+        }
+
+        .contact-value {
+            color: var(--primary);
+        }
+
+        .contact-link {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--primary);
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .footer-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-link {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+            transform: scale(1.1);
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch:hover::before,
+        .glitch:hover::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch:hover::before {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #ff00ff;
+            z-index: -1;
+        }
+
+        .glitch:hover::after {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite;
+            color: #00ffff;
+            z-index: -2;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-2px, 2px);
+            }
+            40% {
+                transform: translate(-2px, -2px);
+            }
+            60% {
+                transform: translate(2px, 2px);
+            }
+            80% {
+                transform: translate(2px, -2px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .terminal-body {
+                padding: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+            }
+
+            .nav-item {
+                width: 100%;
+                text-align: center;
+            }
+
+            .skill-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .skill-bar {
+                width: 100%;
+                max-width: none;
+            }
+
+            .footer-line {
+                flex-direction: column;
+            }
+        }
+
+        .boot-sequence {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-darker);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+        }
+
+        .boot-text {
+            text-align: left;
+        }
+
+        .boot-line {
+            opacity: 0;
+            animation: bootLine 0.1s ease-out forwards;
+        }
+
+        @keyframes bootLine {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="boot-sequence" id="bootSequence">
+        <div class="boot-text" id="bootText"></div>
+    </div>
+
+    <div class="container">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                </div>
+                <div class="terminal-title">SYSTEM_INTERFACE_v2.4.1</div>
+            </div>
+
+            <div class="terminal-body">
+                <div class="header-box" id="headerBox">
+                    <div class="header-line" style="animation-delay: 0.1s;">> SYSTEM INITIALIZED...</div>
+                    <div class="header-line" style="animation-delay: 0.2s;">> USER: <span class="glitch" data-name id="userName">[Loading...]</span></div>
+                    <div class="header-line" style="animation-delay: 0.3s;">> DESIGNATION: <span id="userDesignation">[Loading...]</span></div>
+                    <div class="header-line" style="animation-delay: 0.4s;">> STATUS: <span style="color: var(--secondary);" id="userStatus">ONLINE</span></div>
+                    <div class="header-line" style="animation-delay: 0.5s;">> LOCATION: <span id="userLocation">[Loading...]</span></div>
+                    <div class="header-line" style="animation-delay: 0.6s;">> TIMESTAMP: <span id="timestamp"></span></div>
+                </div>
+
+                <div class="nav-container">
+                    <div class="nav-prompt">> SELECT MODULE:</div>
+                    <div class="nav-menu">
+                        <button class="nav-item active" data-section="about">1 ABOUT.SYS</button>
+                        <button class="nav-item" data-section="projects">2 PROJECTS.EXE</button>
+                        <button class="nav-item" data-section="skills">3 SKILLS.DAT</button>
+                        <button class="nav-item" data-section="contact">4 CONTACT.LOG</button>
+                        <button class="nav-item" data-section="blog">5 BLOG.TXT</button>
+                    </div>
+                </div>
+
+                <!-- About Section -->
+                <div class="content-section active" id="about">
+                    <div class="section-header">> cat about.txt</div>
+                    <div class="section-header">> Loading personal_info...</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    <div id="bioContent"></div>
+                    <div class="content-text">
+                        <span style="color: var(--secondary);">> Specializations:</span><br>
+                        <div id="specializationsContent"></div>
+                    </div>
+                </div>
+
+                <!-- Projects Section -->
+                <div class="content-section" id="projects">
+                    <div class="section-header">> ls projects/</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    <div id="projectsContent"></div>
+                    <div class="content-text" style="margin-top: 2rem; color: var(--text-dim);">
+                        > For detailed project documentation and source code, visit my GitHub repository.
+                    </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="content-section" id="skills">
+                    <div class="section-header">> tree skills/</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    <div class="skills-tree" id="skillsContent"></div>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="content-section" id="contact">
+                    <div class="section-header">> cat contact.log</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    <div id="contactContent"></div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    <div class="content-text" style="margin-top: 1.5rem;">
+                        <span style="color: var(--secondary);">> Open for opportunities in:</span><br>
+                        <div id="opportunitiesContent"></div>
+                    </div>
+                    <div class="content-text" style="margin-top: 1rem; color: var(--text-dim);">
+                        Feel free to reach out for project discussions, collaborations, or just to connect!
+                    </div>
+                </div>
+
+                <!-- Blog Section -->
+                <div class="content-section" id="blog">
+                    <div class="section-header">> cat blog.txt</div>
+                    <div class="separator">────────────────────────────────────────────────</div>
+                    <div id="blogContent"></div>
+                    <div class="content-text" style="margin-top: 2rem; color: var(--text-dim);">
+                        > More articles coming soon. Follow my blog for updates on embedded systems, IoT, and electronics.
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="footer">
+                    <div class="separator">───────────────────────────────────────────────────────────</div>
+                    <div class="footer-line">
+                        <div>> UPTIME: <span id="uptime">00:00:00</span></div>
+                        <div>> LAST_COMMIT: <span style="color: var(--secondary);" id="lastCommit">Loading...</span></div>
+                    </div>
+                    <div class="footer-line">
+                        <div class="social-links" id="socialLinks"></div>
+                        <div>> SYSTEM_<span id="systemVersion">v2.4.1</span> © <span id="copyrightYear">2024</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Parse config.h file
+        async function loadConfig() {
+            try {
+                const response = await fetch('config.h');
+                const text = await response.text();
+                return parseConfigH(text);
+            } catch (error) {
+                console.error('Error loading config.h:', error);
+                return null;
+            }
+        }
+
+        function parseConfigH(content) {
+            const config = {};
+            
+            // Remove comments
+            content = content.replace(/\/\*[\s\S]*?\*\//g, '');
+            content = content.replace(/\/\/.*/g, '');
+            
+            // Parse #define statements
+            const defineRegex = /#define\s+(\w+)\s+"([^"]*)"/g;
+            const defineRegexMultiline = /#define\s+(\w+)\s+"([^"]*(?:\\\s*\n[^"]*)*)"/g;
+            const defineRegexNumber = /#define\s+(\w+)\s+(\d+)/g;
+            
+            let match;
+            
+            // Parse string values
+            while ((match = defineRegex.exec(content)) !== null) {
+                config[match[1]] = match[2];
+            }
+            
+            // Parse multiline strings
+            const multilineContent = content.replace(/\\\s*\n\s*/g, ' ');
+            while ((match = defineRegexMultiline.exec(multilineContent)) !== null) {
+                config[match[1]] = match[2].replace(/\\\s*\n\s*/g, ' ').trim();
+            }
+            
+            // Parse numeric values
+            while ((match = defineRegexNumber.exec(content)) !== null) {
+                config[match[1]] = parseInt(match[2]);
+            }
+            
+            return config;
+        }
+
+        function populateContent(config) {
+            if (!config) {
+                console.error('Config not loaded');
+                return;
+            }
+
+            // Personal Info
+            const userName = document.getElementById('userName');
+            const nameValue = config.NAME || 'Your Name';
+            userName.textContent = nameValue;
+            userName.setAttribute('data-text', nameValue);
+            
+            document.getElementById('userDesignation').textContent = config.DESIGNATION || 'Embedded Systems Engineer';
+            document.getElementById('userLocation').textContent = config.LOCATION || 'Bengaluru, IN';
+            document.getElementById('userStatus').textContent = config.STATUS || 'ONLINE';
+
+            // Bio
+            const bioContent = document.getElementById('bioContent');
+            if (config.BIO_PARAGRAPH_1) {
+                bioContent.innerHTML += `<div class="content-text">${config.BIO_PARAGRAPH_1}</div>`;
+            }
+            if (config.BIO_PARAGRAPH_2) {
+                bioContent.innerHTML += `<div class="content-text">${config.BIO_PARAGRAPH_2}</div>`;
+            }
+
+            // Specializations
+            const specializationsContent = document.getElementById('specializationsContent');
+            for (let i = 1; i <= 10; i++) {
+                const spec = config[`SPECIALIZATION_${i}`];
+                if (spec) {
+                    specializationsContent.innerHTML += `        → ${spec}<br>`;
+                }
+            }
+
+            // Projects
+            const projectsContent = document.getElementById('projectsContent');
+            for (let i = 1; i <= 10; i++) {
+                const title = config[`PROJECT_${i}_TITLE`];
+                const desc = config[`PROJECT_${i}_DESC`];
+                
+                if (title && desc) {
+                    let tagsHTML = '';
+                    for (let j = 1; j <= 10; j++) {
+                        const tag = config[`PROJECT_${i}_TAG_${j}`];
+                        if (tag) {
+                            tagsHTML += `<span class="tag">${tag}</span>\n                            `;
+                        }
+                    }
+                    
+                    projectsContent.innerHTML += `
+                    <div class="project-item">
+                        <div class="project-title">[PROJECT_${String(i).padStart(2, '0')}] ${title}</div>
+                        <div class="project-desc">${desc}</div>
+                        <div class="project-tags">
+                            ${tagsHTML}
+                        </div>
+                    </div>`;
+                }
+            }
+
+            // Skills
+            const skillsContent = document.getElementById('skillsContent');
+            
+            // Hardware Skills
+            let hwSkills = '';
+            for (let i = 1; i <= 10; i++) {
+                const name = config[`SKILL_HW_${i}_NAME`];
+                const level = config[`SKILL_HW_${i}_LEVEL`];
+                if (name && level !== undefined) {
+                    hwSkills += `
+                    <div class="skill-item">
+                        <div class="skill-name">│   ${i === 1 ? '├──' : i === 10 || !config[`SKILL_HW_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="${level}"></div>
+                        </div>
+                        <div class="skill-percent">${level}%</div>
+                    </div>`;
+                }
+            }
+            if (hwSkills) {
+                skillsContent.innerHTML += `<div class="skill-category">├── Hardware</div>${hwSkills}`;
+            }
+
+            // Software Skills
+            let swSkills = '';
+            for (let i = 1; i <= 10; i++) {
+                const name = config[`SKILL_SW_${i}_NAME`];
+                const level = config[`SKILL_SW_${i}_LEVEL`];
+                if (name && level !== undefined) {
+                    swSkills += `
+                    <div class="skill-item">
+                        <div class="skill-name">│   ${i === 1 ? '├──' : i === 10 || !config[`SKILL_SW_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="${level}"></div>
+                        </div>
+                        <div class="skill-percent">${level}%</div>
+                    </div>`;
+                }
+            }
+            if (swSkills) {
+                skillsContent.innerHTML += `<div class="skill-category">├── Software</div>${swSkills}`;
+            }
+
+            // Protocol Skills
+            let protoSkills = '';
+            for (let i = 1; i <= 10; i++) {
+                const name = config[`SKILL_PROTO_${i}_NAME`];
+                const level = config[`SKILL_PROTO_${i}_LEVEL`];
+                if (name && level !== undefined) {
+                    protoSkills += `
+                    <div class="skill-item">
+                        <div class="skill-name">│   ${i === 1 ? '├──' : i === 10 || !config[`SKILL_PROTO_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="${level}"></div>
+                        </div>
+                        <div class="skill-percent">${level}%</div>
+                    </div>`;
+                }
+            }
+            if (protoSkills) {
+                skillsContent.innerHTML += `<div class="skill-category">├── Protocols</div>${protoSkills}`;
+            }
+
+            // Tool Skills
+            let toolSkills = '';
+            for (let i = 1; i <= 10; i++) {
+                const name = config[`SKILL_TOOL_${i}_NAME`];
+                const level = config[`SKILL_TOOL_${i}_LEVEL`];
+                if (name && level !== undefined) {
+                    toolSkills += `
+                    <div class="skill-item">
+                        <div class="skill-name">    ${i === 1 ? '├──' : i === 10 || !config[`SKILL_TOOL_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="${level}"></div>
+                        </div>
+                        <div class="skill-percent">${level}%</div>
+                    </div>`;
+                }
+            }
+            if (toolSkills) {
+                skillsContent.innerHTML += `<div class="skill-category">└── Tools</div>${toolSkills}`;
+            }
+
+            // Contact
+            const contactContent = document.getElementById('contactContent');
+            if (config.EMAIL) {
+                contactContent.innerHTML += `
+                <div class="contact-item">
+                    <div class="contact-label">> EMAIL:</div>
+                    <div class="contact-value">
+                        <a href="mailto:${config.EMAIL}" class="contact-link">${config.EMAIL}</a>
+                    </div>
+                </div>`;
+            }
+            if (config.GITHUB_USERNAME) {
+                contactContent.innerHTML += `
+                <div class="contact-item">
+                    <div class="contact-label">> GITHUB:</div>
+                    <div class="contact-value">
+                        <a href="https://github.com/${config.GITHUB_USERNAME}" class="contact-link" target="_blank">github.com/${config.GITHUB_USERNAME}</a>
+                    </div>
+                </div>`;
+            }
+            if (config.LINKEDIN_PROFILE) {
+                contactContent.innerHTML += `
+                <div class="contact-item">
+                    <div class="contact-label">> LINKEDIN:</div>
+                    <div class="contact-value">
+                        <a href="https://linkedin.com/in/${config.LINKEDIN_PROFILE}" class="contact-link" target="_blank">linkedin.com/in/${config.LINKEDIN_PROFILE}</a>
+                    </div>
+                </div>`;
+            }
+            if (config.LOCATION) {
+                contactContent.innerHTML += `
+                <div class="contact-item">
+                    <div class="contact-label">> LOCATION:</div>
+                    <div class="contact-value">${config.LOCATION}</div>
+                </div>`;
+            }
+
+            // Opportunities
+            const opportunitiesContent = document.getElementById('opportunitiesContent');
+            for (let i = 1; i <= 10; i++) {
+                const opp = config[`OPPORTUNITY_${i}`];
+                if (opp) {
+                    opportunitiesContent.innerHTML += `        → ${opp}<br>`;
+                }
+            }
+
+            // Blog
+            const blogContent = document.getElementById('blogContent');
+            for (let i = 1; i <= 20; i++) {
+                const date = config[`BLOG_${i}_DATE`];
+                const title = config[`BLOG_${i}_TITLE`];
+                const desc = config[`BLOG_${i}_DESC`];
+                
+                if (date && title && desc) {
+                    blogContent.innerHTML += `
+                    <div class="project-item">
+                        <div class="project-title">[${date}] ${title}</div>
+                        <div class="project-desc">${desc}</div>
+                    </div>`;
+                }
+            }
+
+            // Footer
+            if (config.LAST_COMMIT) {
+                document.getElementById('lastCommit').textContent = config.LAST_COMMIT;
+            }
+            if (config.SYSTEM_VERSION) {
+                document.getElementById('systemVersion').textContent = config.SYSTEM_VERSION;
+            }
+            if (config.COPYRIGHT_YEAR) {
+                document.getElementById('copyrightYear').textContent = config.COPYRIGHT_YEAR;
+            }
+
+            // Social Links
+            const socialLinks = document.getElementById('socialLinks');
+            if (config.GITHUB_USERNAME) {
+                socialLinks.innerHTML += `<a href="https://github.com/${config.GITHUB_USERNAME}" class="social-link" target="_blank">[GITHUB]</a>`;
+            }
+            if (config.LINKEDIN_PROFILE) {
+                socialLinks.innerHTML += `<a href="https://linkedin.com/in/${config.LINKEDIN_PROFILE}" class="social-link" target="_blank">[LINKEDIN]</a>`;
+            }
+            if (config.EMAIL) {
+                socialLinks.innerHTML += `<a href="mailto:${config.EMAIL}" class="social-link">[EMAIL]</a>`;
+            }
+            if (config.BLOG_URL && config.BLOG_URL !== '#') {
+                socialLinks.innerHTML += `<a href="${config.BLOG_URL}" class="social-link" target="_blank">[BLOG]</a>`;
+            }
+        }
+
+        // Boot Sequence
+        const bootSequence = [
+            'INITIALIZING SYSTEM...',
+            'LOADING CORE MODULES...',
+            'CHECKING SYSTEM INTEGRITY...',
+            'MOUNTING FILE SYSTEMS...',
+            'READING CONFIG.H...',
+            'LOADING USER PROFILE...',
+            'SYSTEM READY.'
+        ];
+
+        function displayBootSequence() {
+            const bootText = document.getElementById('bootText');
+            let lineIndex = 0;
+
+            const interval = setInterval(() => {
+                if (lineIndex < bootSequence.length) {
+                    const line = document.createElement('div');
+                    line.className = 'boot-line';
+                    line.textContent = '> ' + bootSequence[lineIndex];
+                    line.style.animationDelay = '0s';
+                    bootText.appendChild(line);
+                    lineIndex++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('bootSequence').style.opacity = '0';
+                        document.getElementById('bootSequence').style.transition = 'opacity 0.5s';
+                        setTimeout(() => {
+                            document.getElementById('bootSequence').style.display = 'none';
+                            animateSkillBars();
+                        }, 500);
+                    }, 500);
+                }
+            }, 150);
+        }
+
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                contentSections.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === section) {
+                        content.classList.add('active');
+                        if (section === 'skills') {
+                            setTimeout(animateSkillBars, 100);
+                        }
+                    }
+                });
+
+                item.style.background = 'rgba(57, 255, 20, 0.3)';
+                setTimeout(() => {
+                    item.style.background = '';
+                }, 100);
+            });
+        });
+
+        function animateSkillBars() {
+            const skillFills = document.querySelectorAll('.skill-fill');
+            skillFills.forEach((fill, index) => {
+                setTimeout(() => {
+                    const width = fill.dataset.width;
+                    fill.style.width = width + '%';
+                }, index * 50);
+            });
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
+            document.getElementById('timestamp').textContent = timestamp;
+        }
+
+        let uptimeSeconds = 0;
+        function updateUptime() {
+            uptimeSeconds++;
+            const hours = Math.floor(uptimeSeconds / 3600).toString().padStart(2, '0');
+            const minutes = Math.floor((uptimeSeconds % 3600) / 60).toString().padStart(2, '0');
+            const seconds = (uptimeSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('uptime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            displayBootSequence();
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+            setInterval(updateUptime, 1000);
+            
+            // Load and populate config
+            const config = await loadConfig();
+            populateContent(config);
+        });
+
+        // Console Easter Eggs
+        console.log('%c> SYSTEM ACCESS GRANTED', 'color: #00ff9f; font-family: monospace; font-size: 14px;');
+        console.log('%c> Config loaded from config.h', 'color: #39ff14; font-family: monospace;');
+    </script>
+</body>
+</html>
