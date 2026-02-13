@@ -3,22 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal // System Interface</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Adler Nunez - Embedded Systems Engineer</title>
     <style>
-        :root {
-            --bg-dark: #0a0e27;
-            --bg-darker: #050812;
-            --primary: #00ff9f;
-            --secondary: #39ff14;
-            --accent: #ffb000;
-            --text-dim: #7a8a99;
-            --border-color: #00ff9f;
-            --glow: rgba(0, 255, 159, 0.3);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -26,461 +12,395 @@
         }
 
         body {
-            font-family: 'Share Tech Mono', 'Courier New', monospace;
-            background: var(--bg-dark);
-            color: var(--primary);
-            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 60px 40px 20px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 4em;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.5em;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+        }
+
+        /* Animated dino on dotted line */
+        .header-divider {
+            position: relative;
+            height: 40px;
+            border-top: 3px dashed #333;
+            overflow: hidden;
+        }
+
+        .header-dino {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            width: 30px;
+            height: 32px;
+            animation: runAcross 8s linear infinite;
+        }
+
+        @keyframes runAcross {
+            0% { left: -50px; }
+            100% { left: 100%; }
+        }
+
+        .header-obstacle {
+            position: absolute;
+            top: -20px;
+            width: 15px;
+            height: 30px;
+            animation: obstacleAcross 8s linear infinite;
+        }
+
+        @keyframes obstacleAcross {
+            0% { right: -50px; }
+            100% { right: 100%; }
+        }
+
+        .main-container {
+            display: flex;
+            padding: 20px 40px 40px;
+            gap: 40px;
+            position: relative;
+        }
+
+        .nav-section {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+        }
+
+        .nav-btn {
+            background: #000;
+            color: #fff;
+            border: 3px solid #fff;
+            border-bottom: none;
+            padding: 25px 20px 25px 50px;
+            font-size: 1.5em;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            position: relative;
+        }
+
+        .nav-btn:last-child {
+            border-bottom: 3px solid #fff;
+        }
+
+        .nav-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .nav-btn.active {
+            background: #fff;
+            color: #000;
+        }
+
+        /* Green dot LED indicator below each button */
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active::after {
+            background: #00ff9f;
+            box-shadow: 0 0 10px #00ff9f, 0 0 20px #00ff9f;
+        }
+
+        .content-section {
+            flex: 1;
+            position: relative;
+        }
+
+        /* Display screen - white background for terminal */
+        .display-wrapper {
+            width: 100%;
+            height: 600px;
+            border: 3px solid #fff;
+            background: #fff;
+            overflow-y: auto;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* CRT Scanline Effect */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 255, 159, 0.02) 50%
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 9999;
-            animation: scanline 8s linear infinite;
+        /* Hide scrollbar but keep functionality */
+        .display-wrapper::-webkit-scrollbar {
+            width: 8px;
         }
 
-        @keyframes scanline {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(4px); }
+        .display-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
         }
 
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(
-                ellipse at center,
-                transparent 0%,
-                rgba(10, 14, 39, 0.6) 100%
-            );
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .terminal {
-            border: 2px solid var(--border-color);
+        .display-wrapper::-webkit-scrollbar-thumb {
+            background: #888;
             border-radius: 4px;
-            box-shadow: 
-                0 0 20px var(--glow),
-                0 0 40px var(--glow),
-                inset 0 0 60px rgba(0, 255, 159, 0.05);
-            background: rgba(5, 8, 18, 0.95);
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-            animation: terminalBoot 0.5s ease-out;
         }
 
-        @keyframes terminalBoot {
-            0% {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .display-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
 
-        .terminal-header {
-            background: rgba(0, 255, 159, 0.1);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .terminal-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .terminal-button {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 1px solid var(--primary);
-            background: transparent;
-            transition: all 0.3s;
-        }
-
-        .terminal-button:nth-child(1) { border-color: #ff5f56; }
-        .terminal-button:nth-child(2) { border-color: #ffb000; }
-        .terminal-button:nth-child(3) { border-color: #00ff9f; }
-
-        .terminal-button:hover {
-            box-shadow: 0 0 10px currentColor;
-        }
-
-        .terminal-title {
-            font-family: 'VT323', monospace;
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-            margin-left: 1rem;
-            text-shadow: 0 0 5px var(--primary);
-        }
-
-        .terminal-body {
-            padding: 2rem;
-            min-height: 500px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .header-box {
-            border: 1px solid var(--primary);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-box::before {
-            content: '';
+        /* Dino Game Canvas */
+        .game-canvas {
             position: absolute;
             top: 0;
-            left: -100%;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 159, 0.1), transparent);
-            animation: headerSweep 3s ease-in-out infinite;
-        }
-
-        @keyframes headerSweep {
-            0%, 100% { left: -100%; }
-            50% { left: 100%; }
-        }
-
-        .header-line {
-            opacity: 0;
-            animation: typeLine 0.05s ease-out forwards;
-            white-space: nowrap;
-        }
-
-        @keyframes typeLine {
-            to { opacity: 1; }
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 16px;
-            background: var(--primary);
-            animation: blink 1s step-end infinite;
-            margin-left: 2px;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        .nav-container {
-            margin: 2rem 0;
-            padding: 1rem 0;
-            border-top: 1px dashed var(--text-dim);
-            border-bottom: 1px dashed var(--text-dim);
-        }
-
-        .nav-prompt {
-            color: var(--secondary);
-            margin-bottom: 1rem;
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .nav-item {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 0.6rem 1.2rem;
-            font-family: inherit;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-shadow: 0 0 5px var(--primary);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-item::before {
-            content: '[';
-            margin-right: 0.3rem;
-        }
-
-        .nav-item::after {
-            content: ']';
-            margin-left: 0.3rem;
-        }
-
-        .nav-item:hover {
-            background: rgba(0, 255, 159, 0.1);
-            border-color: var(--accent);
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent);
-            box-shadow: 0 0 15px rgba(255, 176, 0, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .nav-item:hover::before {
-            content: '>>';
-        }
-
-        .nav-item:hover::after {
-            content: '<<';
-        }
-
-        .nav-item.active {
-            background: rgba(57, 255, 20, 0.15);
-            border-color: var(--secondary);
-            color: var(--secondary);
-            text-shadow: 0 0 10px var(--secondary);
-        }
-
-        .content-section {
+            background: #f7f7f7;
             display: none;
-            animation: fadeIn 0.5s ease-out;
         }
 
-        .content-section.active {
+        .game-canvas.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 2px;
+            background: #535353;
         }
 
-        .section-header {
-            color: var(--accent);
-            margin-bottom: 1rem;
-            font-size: 1rem;
+        .dino-sprite {
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            width: 44px;
+            height: 47px;
+            transition: bottom 0.05s;
         }
 
-        .separator {
-            color: var(--text-dim);
-            margin: 1rem 0;
+        .dino-sprite.jumping {
+            animation: dinoJump 0.5s;
         }
 
-        .content-text {
-            color: var(--primary);
-            margin-bottom: 1rem;
+        @keyframes dinoJump {
+            0%, 100% { bottom: 0; }
+            50% { bottom: 120px; }
+        }
+
+        .cloud {
+            position: absolute;
+            animation: cloudMove 15s linear infinite;
+        }
+
+        @keyframes cloudMove {
+            from { left: 100%; }
+            to { left: -100px; }
+        }
+
+        .obstacle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            animation: obstacleMove 2s linear infinite;
+        }
+
+        @keyframes obstacleMove {
+            from { right: -50px; }
+            to { right: 100%; }
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            color: #535353;
+            display: none;
+        }
+
+        .score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.2em;
+            color: #535353;
+        }
+
+        /* Terminal Content Display - Pure White */
+        .terminal-content {
+            width: 100%;
+            background: #fff;
+            color: #000;
+            padding: 40px;
+            display: none;
+            font-size: 15px;
             line-height: 1.8;
+            text-align: justify;
+            text-align-last: left;
+            position: relative;
         }
 
-        .project-item {
-            border-left: 2px solid var(--primary);
-            padding-left: 1rem;
-            margin: 1rem 0;
-            transition: all 0.3s;
-            cursor: pointer;
+        /* Green dot inside terminal box */
+        .terminal-content::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 12px;
+            height: 12px;
+            background: #00ff9f;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
 
-        .project-item:hover {
-            border-left-color: var(--accent);
-            transform: translateX(10px);
+        /* Ensure all text inside terminal is justified */
+        .terminal-content p,
+        .terminal-content div,
+        .terminal-line {
+            text-align: justify;
+            text-align-last: left;
         }
 
-        .project-item:hover .project-title {
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent);
+        .terminal-content.active {
+            display: block;
+            animation: terminalBoot 0.5s;
         }
 
-        .project-title {
-            color: var(--secondary);
-            font-size: 1.1rem;
-            margin-bottom: 0.3rem;
-            transition: all 0.3s;
+        @keyframes terminalBoot {
+            0% { 
+                opacity: 0;
+            }
+            100% { 
+                opacity: 1;
+            }
         }
 
-        .project-desc {
-            color: var(--text-dim);
-            font-size: 0.85rem;
+        .terminal-line {
+            opacity: 0;
+            animation: typeIn 0.3s forwards;
+            margin-bottom: 4px;
         }
 
-        .project-tags {
-            margin-top: 0.5rem;
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+        @keyframes typeIn {
+            to { opacity: 1; }
+        }
+
+        .terminal-prompt {
+            color: #000;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .terminal-header {
+            font-size: 20px;
+            margin: 25px 0 15px;
+            color: #000;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .terminal-subheader {
+            font-size: 16px;
+            margin: 20px 0 10px;
+            color: #000;
+            font-weight: bold;
         }
 
         .tag {
-            color: var(--primary);
-            font-size: 0.75rem;
-            border: 1px solid var(--primary);
-            padding: 0.2rem 0.5rem;
-            border-radius: 2px;
+            background: #000;
+            color: #fff;
+            padding: 5px 12px;
+            margin: 5px 5px 5px 0;
+            display: inline-block;
+            font-size: 13px;
+            font-weight: bold;
         }
 
-        .skills-tree {
-            font-family: 'VT323', monospace;
-            font-size: 1.1rem;
-            line-height: 1.8;
-        }
-
-        .skill-category {
-            color: var(--secondary);
-            margin-top: 1rem;
-        }
-
-        .skill-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin: 0.5rem 0;
-            padding-left: 2rem;
-        }
-
-        .skill-name {
-            min-width: 150px;
-            color: var(--primary);
-        }
-
-        .skill-bar {
-            flex: 1;
-            max-width: 200px;
-            height: 16px;
-            border: 1px solid var(--primary);
+        .skill-bar-terminal {
+            background: #e0e0e0;
+            height: 25px;
+            margin: 10px 0 20px 0;
             position: relative;
-            overflow: hidden;
+            border: 2px solid #000;
         }
 
-        .skill-fill {
+        .skill-fill-terminal {
+            background: #000;
             height: 100%;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
             transition: width 1s ease-out;
-            position: relative;
-        }
-
-        .skill-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .skill-percent {
-            color: var(--text-dim);
-            font-size: 0.85rem;
-        }
-
-        .contact-item {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin: 1rem 0;
-            padding: 0.8rem;
-            border: 1px solid transparent;
-            transition: all 0.3s;
+            padding-left: 15px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
         }
 
-        .contact-item:hover {
-            border-color: var(--primary);
-            background: rgba(0, 255, 159, 0.05);
-            transform: translateX(5px);
+        .contact-info {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-left: 4px solid #000;
         }
 
         .contact-label {
-            color: var(--secondary);
-            min-width: 100px;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
         }
 
         .contact-value {
-            color: var(--primary);
+            font-size: 1.1em;
+            color: #000;
+            font-weight: bold;
         }
 
-        .contact-link {
-            color: var(--primary);
-            text-decoration: none;
-            border-bottom: 1px dashed var(--primary);
-            transition: all 0.3s;
+        .project-block {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-left: 4px solid #000;
         }
 
-        .contact-link:hover {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-            text-shadow: 0 0 10px var(--accent);
+        .blog-block {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-left: 4px solid #000;
         }
 
-        .footer {
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--text-dim);
-            color: var(--text-dim);
-            font-size: 0.85rem;
+        .date {
+            color: #000;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .footer-line {
-            display: flex;
-            justify-content: space-between;
-            margin: 0.5rem 0;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .social-link {
-            color: var(--primary);
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        .social-link:hover {
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent);
-            transform: scale(1.1);
-        }
-
+        /* Glitch effect on hover */
         .glitch {
             position: relative;
         }
@@ -496,204 +416,406 @@
         }
 
         .glitch:hover::before {
-            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-            color: #ff00ff;
+            animation: glitch 0.3s infinite;
+            color: #00ff9f;
             z-index: -1;
         }
 
         .glitch:hover::after {
-            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite;
-            color: #00ffff;
+            animation: glitch 0.3s infinite reverse;
+            color: #ff00ff;
             z-index: -2;
         }
 
         @keyframes glitch {
-            0% {
-                transform: translate(0);
-            }
-            20% {
-                transform: translate(-2px, 2px);
-            }
-            40% {
-                transform: translate(-2px, -2px);
-            }
-            60% {
-                transform: translate(2px, 2px);
-            }
-            80% {
-                transform: translate(2px, -2px);
-            }
-            100% {
-                transform: translate(0);
-            }
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .terminal-body {
-                padding: 1rem;
-                font-size: 0.85rem;
-            }
-
-            .nav-menu {
+        @media (max-width: 968px) {
+            .main-container {
                 flex-direction: column;
             }
 
-            .nav-item {
+            .nav-section {
                 width: 100%;
-                text-align: center;
+                flex-direction: row;
+                overflow-x: auto;
             }
 
-            .skill-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
+            .nav-btn {
+                min-width: 150px;
+                border-right: none;
+                border-bottom: 3px solid #fff;
             }
 
-            .skill-bar {
-                width: 100%;
-                max-width: none;
+            .nav-btn:last-child {
+                border-right: 3px solid #fff;
             }
 
-            .footer-line {
-                flex-direction: column;
+            h1 {
+                font-size: 2.5em;
             }
-        }
-
-        .boot-sequence {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-darker);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            font-family: 'VT323', monospace;
-            font-size: 1.5rem;
-        }
-
-        .boot-text {
-            text-align: left;
-        }
-
-        .boot-line {
-            opacity: 0;
-            animation: bootLine 0.1s ease-out forwards;
-        }
-
-        @keyframes bootLine {
-            to { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="boot-sequence" id="bootSequence">
-        <div class="boot-text" id="bootText"></div>
+    <header>
+        <h1 class="glitch" data-text="ADLER NUNEZ">ADLER NUNEZ</h1>
+        <div class="subtitle">Embedded Systems Engineer</div>
+    </header>
+
+    <div class="header-divider">
+        <svg class="header-dino" viewBox="0 0 44 47">
+            <path d="M22 0h2v2h2v2h2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h-2v2h-2v2h-2v-2h-2v-2h-2v2h-2v2h-2v-2h2v-2h-4v-4h-2v-4h-2v-2h-2v-2h-2v-2h-2v-4h-2v-6h2v-2h4v-2h2v-2h2v-2h2v-2h2v-2h2V0z" fill="#535353"/>
+        </svg>
+        <svg class="header-obstacle" viewBox="0 0 20 40">
+            <path d="M8 0h4v2h2v6h-2v2h2v6h2v-6h2v-2h2v-6h2v26h-2v2h-2v2h-8v-2H8v-2H6V8h2V6h2V2H8V0z" fill="#535353"/>
+        </svg>
     </div>
 
-    <div class="container">
-        <div class="terminal">
-            <div class="terminal-header">
-                <div class="terminal-buttons">
-                    <div class="terminal-button"></div>
-                    <div class="terminal-button"></div>
-                    <div class="terminal-button"></div>
-                </div>
-                <div class="terminal-title">SYSTEM_INTERFACE_v2.4.1</div>
-            </div>
+    <div class="main-container">
+        <!-- Navigation Boxes -->
+        <div class="nav-section">
+            <button class="nav-btn active" data-section="about">About</button>
+            <button class="nav-btn" data-section="projects">Projects</button>
+            <button class="nav-btn" data-section="skills">Skills</button>
+            <button class="nav-btn" data-section="contact">Contact</button>
+            <button class="nav-btn" data-section="blogs">Blogs</button>
+        </div>
 
-            <div class="terminal-body">
-                <div class="header-box" id="headerBox">
-                    <div class="header-line" style="animation-delay: 0.1s;">> SYSTEM INITIALIZED...</div>
-                    <div class="header-line" style="animation-delay: 0.2s;">> USER: <span class="glitch" data-name id="userName">[Loading...]</span></div>
-                    <div class="header-line" style="animation-delay: 0.3s;">> DESIGNATION: <span id="userDesignation">[Loading...]</span></div>
-                    <div class="header-line" style="animation-delay: 0.4s;">> STATUS: <span style="color: var(--secondary);" id="userStatus">ONLINE</span></div>
-                    <div class="header-line" style="animation-delay: 0.5s;">> LOCATION: <span id="userLocation">[Loading...]</span></div>
-                    <div class="header-line" style="animation-delay: 0.6s;">> TIMESTAMP: <span id="timestamp"></span></div>
+        <!-- Content Section -->
+        <div class="content-section">
+            <div class="display-wrapper">
+                <!-- Dino Game -->
+                <div class="game-canvas" id="gameCanvas">
+                    <div class="score" id="score">HI 00000 00000</div>
+                    <div class="ground"></div>
+                    
+                    <svg class="dino-sprite" id="dino" viewBox="0 0 44 47">
+                        <path d="M22 0h2v2h2v2h2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h-2v2h-2v2h-2v-2h-2v-2h-2v2h-2v2h-2v-2h2v-2h-4v-4h-2v-4h-2v-2h-2v-2h-2v-2h-2v-4h-2v-6h2v-2h4v-2h2v-2h2v-2h2v-2h2v-2h2V0z" fill="#535353"/>
+                    </svg>
+                    
+                    <svg class="cloud" style="top: 50px; width: 46px; height: 14px; animation-delay: 0s;" viewBox="0 0 46 14">
+                        <path d="M20 0h4v2h2v2h8v-2h2v-2h4v2h2v2h2v8h-2v2H4v-2H2V6h2V4h2V2h8v2h2V2h4V0z" fill="#535353"/>
+                    </svg>
+                    
+                    <svg class="cloud" style="top: 80px; width: 46px; height: 14px; animation-delay: 5s;" viewBox="0 0 46 14">
+                        <path d="M20 0h4v2h2v2h8v-2h2v-2h4v2h2v2h2v8h-2v2H4v-2H2V6h2V4h2V2h8v2h2V2h4V0z" fill="#535353"/>
+                    </svg>
+
+                    <svg class="obstacle" id="obstacle" viewBox="0 0 20 40">
+                        <path d="M8 0h4v2h2v6h-2v2h2v6h2v-6h2v-2h2v-6h2v26h-2v2h-2v2h-8v-2H8v-2H6V8h2V6h2V2H8V0z" fill="#535353"/>
+                    </svg>
+
+                    <div class="game-over" id="gameOver">GAME OVER<br><small>Press SPACE to restart</small></div>
                 </div>
 
-                <div class="nav-container">
-                    <div class="nav-prompt">> SELECT MODULE:</div>
-                    <div class="nav-menu">
-                        <button class="nav-item active" data-section="about">1 ABOUT.SYS</button>
-                        <button class="nav-item" data-section="projects">2 PROJECTS.EXE</button>
-                        <button class="nav-item" data-section="skills">3 SKILLS.DAT</button>
-                        <button class="nav-item" data-section="contact">4 CONTACT.LOG</button>
-                        <button class="nav-item" data-section="blog">5 BLOG.TXT</button>
+                <!-- About Terminal -->
+                <div class="terminal-content active" id="terminal-about">
+                    <div class="terminal-line" style="animation-delay: 0.1s;">
+                        <span class="terminal-prompt">$</span> cat about.txt
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.2s;">
+                        <div class="terminal-header">ABOUT</div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.3s;">
+                        Embedded systems engineer specializing in IoT solutions, real-time firmware development, and hardware-software integration. Passionate about creating efficient, scalable systems that bridge the physical and digital worlds.
+                    </div>
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 0.5s;">
+                        With expertise in STM32 and ESP32 microcontrollers, I design and develop solutions ranging from sensor networks to complex automation systems. My approach combines low-level programming skills with modern development practices to deliver robust, production-ready embedded applications.
+                    </div>
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 0.7s;">
+                        <div class="terminal-header">SPECIALIZATIONS</div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.8s;">
+                        • STM32 Firmware Development
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.9s;">
+                        • ESP32 IoT Systems
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.0s;">
+                        • PCB Design & Prototyping
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.1s;">
+                        • Sensor Integration & Data Acquisition
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.2s;">
+                        • Wireless Communication (BLE, WiFi, LoRa)
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.3s;">
+                        • Real-Time Operating Systems (FreeRTOS)
                     </div>
                 </div>
 
-                <!-- About Section -->
-                <div class="content-section active" id="about">
-                    <div class="section-header">> cat about.txt</div>
-                    <div class="section-header">> Loading personal_info...</div>
-                    <div class="separator">────────────────────────────────────────────────</div>
-                    <div id="bioContent"></div>
-                    <div class="content-text">
-                        <span style="color: var(--secondary);">> Specializations:</span><br>
-                        <div id="specializationsContent"></div>
+                <!-- Projects Terminal -->
+                <div class="terminal-content" id="terminal-projects">
+                    <div class="terminal-line" style="animation-delay: 0.1s;">
+                        <span class="terminal-prompt">$</span> ls -la projects/
+                    </div>
+                    <br>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.2s;">
+                        <div class="project-block">
+                            <div class="terminal-subheader">IoT Smart Parking System</div>
+                            Real-time parking availability monitoring system using ESP32 and ultrasonic sensors. Features cloud connectivity, mobile app integration, and predictive analytics.
+                            <br><br>
+                            <span class="tag">ESP32</span><span class="tag">MQTT</span><span class="tag">Cloud-IoT</span><span class="tag">Mobile-App</span>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.4s;">
+                        <div class="project-block">
+                            <div class="terminal-subheader">Audio Processing Unit</div>
+                            Custom DSP implementation on STM32H7 for real-time audio filtering and effects. Includes FFT analysis, parametric EQ, and dynamic range compression.
+                            <br><br>
+                            <span class="tag">STM32H7</span><span class="tag">DSP</span><span class="tag">I2S</span><span class="tag">CMSIS-DSP</span>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.6s;">
+                        <div class="project-block">
+                            <div class="terminal-subheader">Mesh Network Implementation</div>
+                            Self-healing wireless sensor network using ESP32 nodes. Implements custom routing protocol optimized for low-power operation and extended range.
+                            <br><br>
+                            <span class="tag">ESP-MESH</span><span class="tag">WiFi</span><span class="tag">Low-Power</span><span class="tag">Networking</span>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.8s;">
+                        <div class="project-block">
+                            <div class="terminal-subheader">Environmental Monitoring Station</div>
+                            Multi-sensor data logger with STM32L4 for temperature, humidity, air quality, and atmospheric pressure monitoring. Features SD card storage and LoRaWAN connectivity.
+                            <br><br>
+                            <span class="tag">STM32L4</span><span class="tag">LoRaWAN</span><span class="tag">Sensors</span><span class="tag">Data-Logging</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Projects Section -->
-                <div class="content-section" id="projects">
-                    <div class="section-header">> ls projects/</div>
-                    <div class="separator">────────────────────────────────────────────────</div>
-                    <div id="projectsContent"></div>
-                    <div class="content-text" style="margin-top: 2rem; color: var(--text-dim);">
-                        > For detailed project documentation and source code, visit my GitHub repository.
+                <!-- Skills Terminal -->
+                <div class="terminal-content" id="terminal-skills">
+                    <div class="terminal-line" style="animation-delay: 0.1s;">
+                        <span class="terminal-prompt">$</span> cat skills.conf
+                    </div>
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 0.2s;">
+                        <div class="terminal-header">[HARDWARE]</div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.3s;">
+                        STM32/ESP32
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.4s;">
+                        Circuit Design
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="75" style="width: 0%;">75%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.5s;">
+                        PCB Layout
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="70" style="width: 0%;">70%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.6s;">
+                        Sensor Integration
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="85" style="width: 0%;">85%</div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 0.7s;">
+                        <div class="terminal-header">[SOFTWARE]</div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.8s;">
+                        C/C++
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.9s;">
+                        Python
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="80" style="width: 0%;">80%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.0s;">
+                        FreeRTOS
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="75" style="width: 0%;">75%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.1s;">
+                        Git/Version Control
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="85" style="width: 0%;">85%</div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 1.2s;">
+                        <div class="terminal-header">[PROTOCOLS]</div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.3s;">
+                        I2C/SPI/UART
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.4s;">
+                        MQTT/HTTP
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="80" style="width: 0%;">80%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.5s;">
+                        BLE/WiFi
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="75" style="width: 0%;">75%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.6s;">
+                        LoRa/LoRaWAN
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="70" style="width: 0%;">70%</div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 1.7s;">
+                        <div class="terminal-header">[TOOLS]</div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.8s;">
+                        EAGLE/KiCAD
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="70" style="width: 0%;">70%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.9s;">
+                        STM32CubeIDE
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="85" style="width: 0%;">85%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2.0s;">
+                        VS Code
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                        </div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2.1s;">
+                        Oscilloscope/Logic Analyzer
+                        <div class="skill-bar-terminal">
+                            <div class="skill-fill-terminal skill-anim" data-level="80" style="width: 0%;">80%</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Skills Section -->
-                <div class="content-section" id="skills">
-                    <div class="section-header">> tree skills/</div>
-                    <div class="separator">────────────────────────────────────────────────</div>
-                    <div class="skills-tree" id="skillsContent"></div>
+                <!-- Contact Terminal -->
+                <div class="terminal-content" id="terminal-contact">
+                    <div class="terminal-line" style="animation-delay: 0.1s;">
+                        <span class="terminal-prompt">$</span> cat contact.info
+                    </div>
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 0.2s;">
+                        <div class="terminal-header">CONTACT INFORMATION</div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.3s;">
+                        <div class="contact-info">
+                            <div class="contact-label">EMAIL</div>
+                            <div class="contact-value">your.email@example.com</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.4s;">
+                        <div class="contact-info">
+                            <div class="contact-label">GITHUB</div>
+                            <div class="contact-value">github.com/yourusername</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.5s;">
+                        <div class="contact-info">
+                            <div class="contact-label">LINKEDIN</div>
+                            <div class="contact-value">linkedin.com/in/yourprofile</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.6s;">
+                        <div class="contact-info">
+                            <div class="contact-label">LOCATION</div>
+                            <div class="contact-value">Bengaluru, IN</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.7s;">
+                        <div class="contact-info">
+                            <div class="contact-label">PHONE</div>
+                            <div class="contact-value">+91 98765 43210</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.8s;">
+                        <div class="contact-info">
+                            <div class="contact-label">STATUS</div>
+                            <div class="contact-value">OPEN TO WORK</div>
+                        </div>
+                    </div>
+                    
+                    <br>
+                    <div class="terminal-line" style="animation-delay: 0.9s;">
+                        <div class="terminal-header">OPEN FOR OPPORTUNITIES</div>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.0s;">
+                        • Embedded Systems Development
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.1s;">
+                        • IoT Solution Architecture
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.2s;">
+                        • Firmware Consulting
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.3s;">
+                        • Technical Collaboration
+                    </div>
                 </div>
 
-                <!-- Contact Section -->
-                <div class="content-section" id="contact">
-                    <div class="section-header">> cat contact.log</div>
-                    <div class="separator">────────────────────────────────────────────────</div>
-                    <div id="contactContent"></div>
-                    <div class="separator">────────────────────────────────────────────────</div>
-                    <div class="content-text" style="margin-top: 1.5rem;">
-                        <span style="color: var(--secondary);">> Open for opportunities in:</span><br>
-                        <div id="opportunitiesContent"></div>
+                <!-- Blogs Terminal -->
+                <div class="terminal-content" id="terminal-blogs">
+                    <div class="terminal-line" style="animation-delay: 0.1s;">
+                        <span class="terminal-prompt">$</span> ls -t blog/
                     </div>
-                    <div class="content-text" style="margin-top: 1rem; color: var(--text-dim);">
-                        Feel free to reach out for project discussions, collaborations, or just to connect!
+                    <br>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.2s;">
+                        <div class="blog-block">
+                            <div class="date">[2024-12-15]</div>
+                            <div class="terminal-subheader">Optimizing Power Consumption in ESP32 Applications</div>
+                            Deep dive into ESP32 power modes and practical strategies for achieving months of battery life in IoT devices. Includes code examples and measurement data.
+                        </div>
                     </div>
-                </div>
-
-                <!-- Blog Section -->
-                <div class="content-section" id="blog">
-                    <div class="section-header">> cat blog.txt</div>
-                    <div class="separator">────────────────────────────────────────────────</div>
-                    <div id="blogContent"></div>
-                    <div class="content-text" style="margin-top: 2rem; color: var(--text-dim);">
-                        > More articles coming soon. Follow my blog for updates on embedded systems, IoT, and electronics.
+                    
+                    <div class="terminal-line" style="animation-delay: 0.4s;">
+                        <div class="blog-block">
+                            <div class="date">[2024-11-28]</div>
+                            <div class="terminal-subheader">Building a Custom RTOS Task Scheduler</div>
+                            Exploring the internals of FreeRTOS and implementing a minimal cooperative task scheduler from scratch for educational purposes.
+                        </div>
                     </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="footer">
-                    <div class="separator">───────────────────────────────────────────────────────────</div>
-                    <div class="footer-line">
-                        <div>> UPTIME: <span id="uptime">00:00:00</span></div>
-                        <div>> LAST_COMMIT: <span style="color: var(--secondary);" id="lastCommit">Loading...</span></div>
-                    </div>
-                    <div class="footer-line">
-                        <div class="social-links" id="socialLinks"></div>
-                        <div>> SYSTEM_<span id="systemVersion">v2.4.1</span> © <span id="copyrightYear">2024</span></div>
+                    
+                    <div class="terminal-line" style="animation-delay: 0.6s;">
+                        <div class="blog-block">
+                            <div class="date">[2024-10-10]</div>
+                            <div class="terminal-subheader">PCB Design Best Practices for STM32</div>
+                            Guidelines for power supply design, decoupling, signal integrity, and EMI considerations when designing boards with high-speed microcontrollers.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -701,388 +823,171 @@
     </div>
 
     <script>
-        // Parse config.h file
-        async function loadConfig() {
-            try {
-                const response = await fetch('config.h');
-                const text = await response.text();
-                return parseConfigH(text);
-            } catch (error) {
-                console.error('Error loading config.h:', error);
-                return null;
-            }
+        // Navigation and section switching
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const terminals = document.querySelectorAll('.terminal-content');
+        const gameCanvas = document.getElementById('gameCanvas');
+        
+        let idleTimer;
+        const IDLE_TIME = 15000; // 15 seconds
+
+        function showDinoGame() {
+            terminals.forEach(t => t.classList.remove('active'));
+            gameCanvas.classList.add('active');
+            navButtons.forEach(b => b.classList.remove('active'));
+            resetGame();
         }
 
-        function parseConfigH(content) {
-            const config = {};
-            
-            // Remove comments
-            content = content.replace(/\/\*[\s\S]*?\*\//g, '');
-            content = content.replace(/\/\/.*/g, '');
-            
-            // Parse #define statements
-            const defineRegex = /#define\s+(\w+)\s+"([^"]*)"/g;
-            const defineRegexMultiline = /#define\s+(\w+)\s+"([^"]*(?:\\\s*\n[^"]*)*)"/g;
-            const defineRegexNumber = /#define\s+(\w+)\s+(\d+)/g;
-            
-            let match;
-            
-            // Parse string values
-            while ((match = defineRegex.exec(content)) !== null) {
-                config[match[1]] = match[2];
-            }
-            
-            // Parse multiline strings
-            const multilineContent = content.replace(/\\\s*\n\s*/g, ' ');
-            while ((match = defineRegexMultiline.exec(multilineContent)) !== null) {
-                config[match[1]] = match[2].replace(/\\\s*\n\s*/g, ' ').trim();
-            }
-            
-            // Parse numeric values
-            while ((match = defineRegexNumber.exec(content)) !== null) {
-                config[match[1]] = parseInt(match[2]);
-            }
-            
-            return config;
+        function hideGame() {
+            gameCanvas.classList.remove('active');
         }
 
-        function populateContent(config) {
-            if (!config) {
-                console.error('Config not loaded');
-                return;
-            }
-
-            // Personal Info
-            const userName = document.getElementById('userName');
-            const nameValue = config.NAME || 'Your Name';
-            userName.textContent = nameValue;
-            userName.setAttribute('data-text', nameValue);
-            
-            document.getElementById('userDesignation').textContent = config.DESIGNATION || 'Embedded Systems Engineer';
-            document.getElementById('userLocation').textContent = config.LOCATION || 'Bengaluru, IN';
-            document.getElementById('userStatus').textContent = config.STATUS || 'ONLINE';
-
-            // Bio
-            const bioContent = document.getElementById('bioContent');
-            if (config.BIO_PARAGRAPH_1) {
-                bioContent.innerHTML += `<div class="content-text">${config.BIO_PARAGRAPH_1}</div>`;
-            }
-            if (config.BIO_PARAGRAPH_2) {
-                bioContent.innerHTML += `<div class="content-text">${config.BIO_PARAGRAPH_2}</div>`;
-            }
-
-            // Specializations
-            const specializationsContent = document.getElementById('specializationsContent');
-            for (let i = 1; i <= 10; i++) {
-                const spec = config[`SPECIALIZATION_${i}`];
-                if (spec) {
-                    specializationsContent.innerHTML += `        → ${spec}<br>`;
-                }
-            }
-
-            // Projects
-            const projectsContent = document.getElementById('projectsContent');
-            for (let i = 1; i <= 10; i++) {
-                const title = config[`PROJECT_${i}_TITLE`];
-                const desc = config[`PROJECT_${i}_DESC`];
-                
-                if (title && desc) {
-                    let tagsHTML = '';
-                    for (let j = 1; j <= 10; j++) {
-                        const tag = config[`PROJECT_${i}_TAG_${j}`];
-                        if (tag) {
-                            tagsHTML += `<span class="tag">${tag}</span>\n                            `;
-                        }
-                    }
-                    
-                    projectsContent.innerHTML += `
-                    <div class="project-item">
-                        <div class="project-title">[PROJECT_${String(i).padStart(2, '0')}] ${title}</div>
-                        <div class="project-desc">${desc}</div>
-                        <div class="project-tags">
-                            ${tagsHTML}
-                        </div>
-                    </div>`;
-                }
-            }
-
-            // Skills
-            const skillsContent = document.getElementById('skillsContent');
-            
-            // Hardware Skills
-            let hwSkills = '';
-            for (let i = 1; i <= 10; i++) {
-                const name = config[`SKILL_HW_${i}_NAME`];
-                const level = config[`SKILL_HW_${i}_LEVEL`];
-                if (name && level !== undefined) {
-                    hwSkills += `
-                    <div class="skill-item">
-                        <div class="skill-name">│   ${i === 1 ? '├──' : i === 10 || !config[`SKILL_HW_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
-                        <div class="skill-bar">
-                            <div class="skill-fill" data-width="${level}"></div>
-                        </div>
-                        <div class="skill-percent">${level}%</div>
-                    </div>`;
-                }
-            }
-            if (hwSkills) {
-                skillsContent.innerHTML += `<div class="skill-category">├── Hardware</div>${hwSkills}`;
-            }
-
-            // Software Skills
-            let swSkills = '';
-            for (let i = 1; i <= 10; i++) {
-                const name = config[`SKILL_SW_${i}_NAME`];
-                const level = config[`SKILL_SW_${i}_LEVEL`];
-                if (name && level !== undefined) {
-                    swSkills += `
-                    <div class="skill-item">
-                        <div class="skill-name">│   ${i === 1 ? '├──' : i === 10 || !config[`SKILL_SW_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
-                        <div class="skill-bar">
-                            <div class="skill-fill" data-width="${level}"></div>
-                        </div>
-                        <div class="skill-percent">${level}%</div>
-                    </div>`;
-                }
-            }
-            if (swSkills) {
-                skillsContent.innerHTML += `<div class="skill-category">├── Software</div>${swSkills}`;
-            }
-
-            // Protocol Skills
-            let protoSkills = '';
-            for (let i = 1; i <= 10; i++) {
-                const name = config[`SKILL_PROTO_${i}_NAME`];
-                const level = config[`SKILL_PROTO_${i}_LEVEL`];
-                if (name && level !== undefined) {
-                    protoSkills += `
-                    <div class="skill-item">
-                        <div class="skill-name">│   ${i === 1 ? '├──' : i === 10 || !config[`SKILL_PROTO_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
-                        <div class="skill-bar">
-                            <div class="skill-fill" data-width="${level}"></div>
-                        </div>
-                        <div class="skill-percent">${level}%</div>
-                    </div>`;
-                }
-            }
-            if (protoSkills) {
-                skillsContent.innerHTML += `<div class="skill-category">├── Protocols</div>${protoSkills}`;
-            }
-
-            // Tool Skills
-            let toolSkills = '';
-            for (let i = 1; i <= 10; i++) {
-                const name = config[`SKILL_TOOL_${i}_NAME`];
-                const level = config[`SKILL_TOOL_${i}_LEVEL`];
-                if (name && level !== undefined) {
-                    toolSkills += `
-                    <div class="skill-item">
-                        <div class="skill-name">    ${i === 1 ? '├──' : i === 10 || !config[`SKILL_TOOL_${i+1}_NAME`] ? '└──' : '├──'} ${name}</div>
-                        <div class="skill-bar">
-                            <div class="skill-fill" data-width="${level}"></div>
-                        </div>
-                        <div class="skill-percent">${level}%</div>
-                    </div>`;
-                }
-            }
-            if (toolSkills) {
-                skillsContent.innerHTML += `<div class="skill-category">└── Tools</div>${toolSkills}`;
-            }
-
-            // Contact
-            const contactContent = document.getElementById('contactContent');
-            if (config.EMAIL) {
-                contactContent.innerHTML += `
-                <div class="contact-item">
-                    <div class="contact-label">> EMAIL:</div>
-                    <div class="contact-value">
-                        <a href="mailto:${config.EMAIL}" class="contact-link">${config.EMAIL}</a>
-                    </div>
-                </div>`;
-            }
-            if (config.GITHUB_USERNAME) {
-                contactContent.innerHTML += `
-                <div class="contact-item">
-                    <div class="contact-label">> GITHUB:</div>
-                    <div class="contact-value">
-                        <a href="https://github.com/${config.GITHUB_USERNAME}" class="contact-link" target="_blank">github.com/${config.GITHUB_USERNAME}</a>
-                    </div>
-                </div>`;
-            }
-            if (config.LINKEDIN_PROFILE) {
-                contactContent.innerHTML += `
-                <div class="contact-item">
-                    <div class="contact-label">> LINKEDIN:</div>
-                    <div class="contact-value">
-                        <a href="https://linkedin.com/in/${config.LINKEDIN_PROFILE}" class="contact-link" target="_blank">linkedin.com/in/${config.LINKEDIN_PROFILE}</a>
-                    </div>
-                </div>`;
-            }
-            if (config.LOCATION) {
-                contactContent.innerHTML += `
-                <div class="contact-item">
-                    <div class="contact-label">> LOCATION:</div>
-                    <div class="contact-value">${config.LOCATION}</div>
-                </div>`;
-            }
-
-            // Opportunities
-            const opportunitiesContent = document.getElementById('opportunitiesContent');
-            for (let i = 1; i <= 10; i++) {
-                const opp = config[`OPPORTUNITY_${i}`];
-                if (opp) {
-                    opportunitiesContent.innerHTML += `        → ${opp}<br>`;
-                }
-            }
-
-            // Blog
-            const blogContent = document.getElementById('blogContent');
-            for (let i = 1; i <= 20; i++) {
-                const date = config[`BLOG_${i}_DATE`];
-                const title = config[`BLOG_${i}_TITLE`];
-                const desc = config[`BLOG_${i}_DESC`];
-                
-                if (date && title && desc) {
-                    blogContent.innerHTML += `
-                    <div class="project-item">
-                        <div class="project-title">[${date}] ${title}</div>
-                        <div class="project-desc">${desc}</div>
-                    </div>`;
-                }
-            }
-
-            // Footer
-            if (config.LAST_COMMIT) {
-                document.getElementById('lastCommit').textContent = config.LAST_COMMIT;
-            }
-            if (config.SYSTEM_VERSION) {
-                document.getElementById('systemVersion').textContent = config.SYSTEM_VERSION;
-            }
-            if (config.COPYRIGHT_YEAR) {
-                document.getElementById('copyrightYear').textContent = config.COPYRIGHT_YEAR;
-            }
-
-            // Social Links
-            const socialLinks = document.getElementById('socialLinks');
-            if (config.GITHUB_USERNAME) {
-                socialLinks.innerHTML += `<a href="https://github.com/${config.GITHUB_USERNAME}" class="social-link" target="_blank">[GITHUB]</a>`;
-            }
-            if (config.LINKEDIN_PROFILE) {
-                socialLinks.innerHTML += `<a href="https://linkedin.com/in/${config.LINKEDIN_PROFILE}" class="social-link" target="_blank">[LINKEDIN]</a>`;
-            }
-            if (config.EMAIL) {
-                socialLinks.innerHTML += `<a href="mailto:${config.EMAIL}" class="social-link">[EMAIL]</a>`;
-            }
-            if (config.BLOG_URL && config.BLOG_URL !== '#') {
-                socialLinks.innerHTML += `<a href="${config.BLOG_URL}" class="social-link" target="_blank">[BLOG]</a>`;
-            }
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(showDinoGame, IDLE_TIME);
         }
 
-        // Boot Sequence
-        const bootSequence = [
-            'INITIALIZING SYSTEM...',
-            'LOADING CORE MODULES...',
-            'CHECKING SYSTEM INTEGRITY...',
-            'MOUNTING FILE SYSTEMS...',
-            'READING CONFIG.H...',
-            'LOADING USER PROFILE...',
-            'SYSTEM READY.'
-        ];
-
-        function displayBootSequence() {
-            const bootText = document.getElementById('bootText');
-            let lineIndex = 0;
-
-            const interval = setInterval(() => {
-                if (lineIndex < bootSequence.length) {
-                    const line = document.createElement('div');
-                    line.className = 'boot-line';
-                    line.textContent = '> ' + bootSequence[lineIndex];
-                    line.style.animationDelay = '0s';
-                    bootText.appendChild(line);
-                    lineIndex++;
-                } else {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        document.getElementById('bootSequence').style.opacity = '0';
-                        document.getElementById('bootSequence').style.transition = 'opacity 0.5s';
-                        setTimeout(() => {
-                            document.getElementById('bootSequence').style.display = 'none';
-                            animateSkillBars();
-                        }, 500);
-                    }, 500);
+        function showSection(section) {
+            hideGame();
+            terminals.forEach(t => t.classList.remove('active'));
+            
+            const terminal = document.getElementById(`terminal-${section}`);
+            if (terminal) {
+                terminal.classList.add('active');
+                
+                if (section === 'skills') {
+                    setTimeout(animateSkills, 500);
                 }
-            }, 150);
+            }
+            
+            // Reset idle timer when section is shown
+            resetIdleTimer();
         }
 
-        // Navigation
-        const navItems = document.querySelectorAll('.nav-item');
-        const contentSections = document.querySelectorAll('.content-section');
-
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const section = item.dataset.section;
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const section = btn.dataset.section;
                 
-                navItems.forEach(nav => nav.classList.remove('active'));
-                item.classList.add('active');
+                navButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
                 
-                contentSections.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === section) {
-                        content.classList.add('active');
-                        if (section === 'skills') {
-                            setTimeout(animateSkillBars, 100);
-                        }
-                    }
-                });
-
-                item.style.background = 'rgba(57, 255, 20, 0.3)';
-                setTimeout(() => {
-                    item.style.background = '';
-                }, 100);
+                showSection(section);
             });
         });
 
-        function animateSkillBars() {
-            const skillFills = document.querySelectorAll('.skill-fill');
+        // Skill bar animation
+        function animateSkills() {
+            const skillFills = document.querySelectorAll('.skill-anim');
             skillFills.forEach((fill, index) => {
                 setTimeout(() => {
-                    const width = fill.dataset.width;
-                    fill.style.width = width + '%';
-                }, index * 50);
+                    const level = fill.dataset.level;
+                    fill.style.width = level + '%';
+                }, index * 100);
             });
         }
 
-        function updateTimestamp() {
-            const now = new Date();
-            const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
-            document.getElementById('timestamp').textContent = timestamp;
-        }
+        // Dino Game Logic
+        const dino = document.getElementById('dino');
+        const obstacle = document.getElementById('obstacle');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverDisplay = document.getElementById('gameOver');
+        
+        let isJumping = false;
+        let isGameOver = false;
+        let score = 0;
+        let highScore = 0;
+        let gameLoop;
+        let obstacleSpeed = 2;
 
-        let uptimeSeconds = 0;
-        function updateUptime() {
-            uptimeSeconds++;
-            const hours = Math.floor(uptimeSeconds / 3600).toString().padStart(2, '0');
-            const minutes = Math.floor((uptimeSeconds % 3600) / 60).toString().padStart(2, '0');
-            const seconds = (uptimeSeconds % 60).toString().padStart(2, '0');
-            document.getElementById('uptime').textContent = `${hours}:${minutes}:${seconds}`;
-        }
-
-        // Initialize
-        window.addEventListener('load', async () => {
-            displayBootSequence();
-            updateTimestamp();
-            setInterval(updateTimestamp, 1000);
-            setInterval(updateUptime, 1000);
+        function jump() {
+            if (isJumping || isGameOver) return;
             
-            // Load and populate config
-            const config = await loadConfig();
-            populateContent(config);
+            isJumping = true;
+            dino.classList.add('jumping');
+            
+            setTimeout(() => {
+                dino.classList.remove('jumping');
+                isJumping = false;
+            }, 500);
+        }
+
+        function checkCollision() {
+            const dinoRect = dino.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+            
+            if (
+                dinoRect.left < obstacleRect.right &&
+                dinoRect.right > obstacleRect.left &&
+                dinoRect.bottom > obstacleRect.top
+            ) {
+                endGame();
+            }
+        }
+
+        function updateScore() {
+            if (!isGameOver) {
+                score++;
+                if (score > highScore) {
+                    highScore = score;
+                }
+                scoreDisplay.textContent = `HI ${highScore.toString().padStart(5, '0')} ${score.toString().padStart(5, '0')}`;
+                
+                // Increase difficulty
+                if (score % 100 === 0) {
+                    obstacleSpeed += 0.2;
+                    obstacle.style.animationDuration = (2 / obstacleSpeed) + 's';
+                }
+            }
+        }
+
+        function endGame() {
+            isGameOver = true;
+            gameOverDisplay.style.display = 'block';
+            obstacle.style.animationPlayState = 'paused';
+            clearInterval(gameLoop);
+        }
+
+        function resetGame() {
+            isGameOver = false;
+            score = 0;
+            obstacleSpeed = 2;
+            gameOverDisplay.style.display = 'none';
+            obstacle.style.animationDuration = '2s';
+            obstacle.style.animationPlayState = 'running';
+            scoreDisplay.textContent = `HI ${highScore.toString().padStart(5, '0')} 00000`;
+            
+            clearInterval(gameLoop);
+            gameLoop = setInterval(() => {
+                checkCollision();
+                updateScore();
+            }, 10);
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (isGameOver) {
+                    resetGame();
+                } else if (gameCanvas.classList.contains('active')) {
+                    jump();
+                }
+            }
         });
 
-        // Console Easter Eggs
-        console.log('%c> SYSTEM ACCESS GRANTED', 'color: #00ff9f; font-family: monospace; font-size: 14px;');
-        console.log('%c> Config loaded from config.h', 'color: #39ff14; font-family: monospace;');
+        document.addEventListener('click', (e) => {
+            if (gameCanvas.classList.contains('active') && !isGameOver) {
+                jump();
+            }
+        });
+
+        // Reset idle timer on user activity
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetIdleTimer);
+        });
+
+        // Start idle timer
+        resetIdleTimer();
     </script>
 </body>
 </html>
