@@ -11,191 +11,184 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Courier New', monospace;
-            background: #000;
-            color: #fff;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            position: fixed;
-        }
+       body {
+    font-family: 'Courier New', monospace;
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+}
 
-        /* Green Status Indicator */
-        .status-indicator {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 20px;
-            height: 20px;
-            background: #00ff9f;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-            z-index: 10000;
-            pointer-events: none;
-        }
+    /* Green Status Indicator */
+.status-indicator {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    width: 20px;
+    height: 20px;
+    background: #00ff9f;
+    border-radius: 50%;
+    animation: pulse 2s infinite ease-in-out;
+    z-index: 10000;
+    pointer-events: none;
+    transform: translateZ(0);
+}
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(0, 255, 159, 0.7);
+            }
+            50% { 
+                opacity: 0.6; 
+                transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(0, 255, 159, 0);
+            }
         }
 
-        /* Play/Pause Button */
-        .play-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 2em;
-            cursor: pointer;
-            z-index: 10000;
-            font-family: 'Courier New', monospace;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            pointer-events: auto;
-        }
+       /* Play/Pause Button */
+.play-button {
+    position: absolute;
+    top: 60px;
+    right: 40px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    cursor: pointer;
+    z-index: 10000;
+    font-family: 'Courier New', monospace;
+    transition: color 0.3s;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    transform: translateZ(0);
+}
 
         .play-button:hover {
             color: #00ff9f;
         }
 
+        /* Header */
         header {
-            padding: 50px 20px 10px;
-            text-align: center;
+            padding: 60px 40px 20px;
+            text-align: left;
         }
 
         h1 {
-            font-size: clamp(1.5em, 5vw, 3.5em);
-            letter-spacing: 0.08em;
-            margin-bottom: 5px;
+            font-size: 60px;
+            letter-spacing: 0.15em;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            line-height: 1.1;
+            line-height: 1;
+            font-weight: 700;
         }
 
         .subtitle {
             color: #888;
-            font-size: clamp(0.75em, 2vw, 1.2em);
-            letter-spacing: 0.04em;
-            margin-bottom: 10px;
-            line-height: 1.2;
+            font-size: 24px;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+            font-weight: 400;
         }
 
-        /* Animated dino on dotted line */
+        /* Animated dino divider */
         .header-divider {
             position: relative;
-            height: 30px;
+            height: 40px;
             border-top: 3px dashed #333;
             overflow: hidden;
-            margin: 0 20px;
+            margin: 0 40px;
         }
 
         .header-dino {
             position: absolute;
-            top: -25px;
+            top: -28px;
             left: 0;
-            width: 30px;
-            height: 32px;
+            width: 35px;
+            height: 35px;
             animation: runAcross 8s linear infinite;
         }
 
         @keyframes runAcross {
             0% { left: -50px; }
-            100% { left: 100%; }
+            100% { left: calc(100% + 50px); }
         }
 
-        .header-obstacle {
-            position: absolute;
-            top: -20px;
-            width: 15px;
-            height: 30px;
-            animation: obstacleAcross 8s linear infinite;
-        }
-
-        @keyframes obstacleAcross {
-            0% { right: -50px; }
-            100% { right: 100%; }
-        }
-
+        /* Main Container */
         .main-container {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            gap: 10px;
-            height: calc(100vh - 200px);
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: 230px 1fr;
+            gap: 20px;
+            padding: 30px 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+            min-height: calc(100vh - 250px);
         }
 
-        /* Navigation Boxes */
+        /* Navigation Section */
         .nav-section {
             display: flex;
             flex-direction: column;
-            gap: 0;
-            width: 100%;
-            max-width: 300px;
+            gap: 43px;
         }
 
         .nav-btn {
-            background: #000;
-            color: #fff;
-            border: 3px solid #fff;
+            background: #fff;
+            color: #000;
+            border: 3px solid #000;
             border-bottom: none;
-            padding: 12px;
-            font-size: 1.2em;
+            padding: 20px;
+            font-size: 1.4em;
             font-family: 'Courier New', monospace;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-align: center;
+            font-weight: 400;
         }
 
         .nav-btn:last-child {
-            border-bottom: 3px solid #fff;
+            border-bottom: 3px solid #000;
         }
 
         .nav-btn:hover,
-        .nav-btn.active {
-            background: #fff;
-            color: #000;
+.nav-btn.active {
+    background: #000;
+    color: #fff;
+    border-color: #fff;
+    border-bottom: 3px solid #fff;
+}
+
+.nav-btn:last-child:hover,
+.nav-btn:last-child.active {
+    border-bottom: 3px solid #fff;
+}
+        .content-display {
+    border: 3px solid #fff;
+    background: #000;
+    position: relative;
+    min-height: 500px;
+    overflow: hidden;
+    max-height: 600px;
+    height: 511px;
+}
+        .high-score {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #666;
+            font-size: 0.95em;
+            z-index: 100;
+            letter-spacing: 0.05em;
         }
 
-        /* Touch-friendly styles */
-        @media (hover: none) and (pointer: coarse) {
-            .nav-btn {
-                -webkit-tap-highlight-color: transparent;
-            }
-            
-            .nav-btn:active {
-                background: #fff;
-                color: #000;
-            }
-        }
-
-        /* Content Section */
-        .content-section {
-            width: 100%;
-            flex: 1;
-            min-height: 0;
-            max-height: 70vh;
-        }
-
-        .display-wrapper {
-            width: 100%;
-            height: 100%;
-            max-height: 500px;
-            border: 3px solid #fff;
-            background: #fff;
-            overflow-y: auto;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Dino Game Canvas */
+        /* Dino Game */
         .game-canvas {
             width: 100%;
             height: 100%;
-            background: #000;
+            min-height: 500px;
+            background: #f7f7f7;
             position: relative;
             display: none;
         }
@@ -204,758 +197,941 @@
             display: block;
         }
 
-        .ground {
-            position: absolute;
-            bottom: 0;
+        .game-canvas iframe {
+            border: none;
             width: 100%;
-            height: 2px;
-            background: #535353;
+            height: 100%;
+            min-height: 500px;
         }
 
-        .dino-sprite {
-            position: absolute;
-            bottom: 0;
-            left: 50px;
-            width: 44px;
-            height: 47px;
-            transition: bottom 0.05s;
-        }
-
-        .dino-sprite.jumping {
-            animation: dinoJump 0.5s;
-        }
-
-        @keyframes dinoJump {
-            0%, 100% { bottom: 0; }
-            50% { bottom: 120px; }
-        }
-
-        .cloud {
-            position: absolute;
-            animation: cloudMove 15s linear infinite;
-        }
-
-        @keyframes cloudMove {
-            from { left: 100%; }
-            to { left: -100px; }
-        }
-
-        .cactus-svg {
-            position: absolute;
-            bottom: 0;
-            width: 30px;
-            height: 50px;
-        }
-
-        .obstacle {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 20px;
-            animation: obstacleMove 2s linear infinite;
-        }
-
-        @keyframes obstacleMove {
-            from { right: -50px; }
-            to { right: 100%; }
-        }
-
-        .game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2em;
-            color: #535353;
-            display: none;
-            text-align: center;
-        }
-
-        .score {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 1em;
-            color: #535353;
-        }
-
-        /* Terminal Content */
         .terminal-content {
-            width: 100%;
-            background: #fff;
-            color: #000;
-            padding: 20px 15px;
-            display: none;
-            font-size: 13px;
-            line-height: 1.7;
-            text-align: justify;
-        }
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: #fff;
+    padding: 30px;
+    display: none;
+    font-size: 15px;
+    line-height: 1.8;
+    overflow-y: auto;
+    max-height: 600px;
+}
 
         .terminal-content.active {
             display: block;
         }
 
-        .terminal-line {
-            opacity: 0;
-            animation: typeIn 0.3s forwards;
-            margin-bottom: 4px;
-        }
-
-        @keyframes typeIn {
-            to { opacity: 1; }
-        }
-
         .terminal-prompt {
-            color: #000;
-            margin-right: 10px;
-            font-weight: bold;
+            color: #00ff9f;
+            font-weight: 700;
+            margin-right: 5px;
         }
 
         .terminal-header {
-            font-size: 18px;
-            margin: 20px 0 15px;
-            color: #000;
-            border-bottom: 2px solid #000;
-            padding-bottom: 8px;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 1.3em;
+            margin: 20px 0 15px 0;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .terminal-subheader {
-            font-size: 16px;
-            margin: 15px 0 10px;
-            color: #000;
-            font-weight: bold;
-        }
-
-        .tag {
-            background: #000;
+            font-weight: 700;
+            margin-top: 10px;
             color: #fff;
-            padding: 4px 10px;
-            margin: 5px 5px 5px 0;
-            display: inline-block;
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 1.1em;
         }
 
-        .skill-bar-terminal {
-            background: #e0e0e0;
-            height: 20px;
-            margin: 8px 0 15px 0;
+        .terminal-line {
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeInLine 0.4s forwards;
+        }
+
+        @keyframes fadeInLine {
+            to { opacity: 1; }
+        }
+
+        /* Project Cards */
+        .project-card {
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .project-title {
+            font-weight: 700;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .project-tech {
+            color: #00ff9f;
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .project-description {
+            margin: 10px 0;
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        /* Skills */
+        .skill-category {
+            margin-bottom: 25px;
+        }
+
+        .skill-item {
+            margin-bottom: 15px;
+        }
+
+        .skill-name {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .skill-bar {
+            width: 100%;
+            height: 22px;
+            background: #222;
+            border-radius: 4px;
+            overflow: hidden;
             position: relative;
-            border: 2px solid #000;
+            border: 1px solid #333;
         }
 
-        .skill-fill-terminal {
-            background: #000;
+        .skill-fill {
             height: 100%;
-            transition: width 1s ease-out;
+            background: linear-gradient(90deg, #00ff9f, #00cc7f);
             display: flex;
             align-items: center;
-            padding-left: 10px;
-            color: #fff;
-            font-weight: bold;
-            font-size: 11px;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.85em;
+            transition: width 1.2s ease-out;
+            width: 0%;
         }
 
-        .contact-info {
-            margin: 12px 0;
-            padding: 12px;
-            background: #f5f5f5;
-            border-left: 4px solid #000;
+        /* Contact Info */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
         }
 
         .contact-label {
-            color: #666;
-            font-size: 0.85em;
-            margin-bottom: 5px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .contact-value {
-            font-size: 1em;
-            color: #000;
-            font-weight: bold;
+            color: #fff;
         }
 
-        .project-block,
-        .blog-block {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f5f5f5;
-            border-left: 4px solid #000;
+        .contact-value a {
+            color: #00ff9f;
+            text-decoration: none;
         }
 
-        .date {
-            color: #000;
-            font-weight: bold;
+        .contact-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* Blog Posts */
+        .blog-post {
+            background: #111;
+            border-left: 4px solid #00ff9f;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .blog-date {
+            color: #00ff9f;
+            font-weight: 700;
             margin-bottom: 8px;
-            font-size: 0.9em;
+            font-size: 0.95em;
         }
 
-        /* Desktop Layout */
-        @media (min-width: 769px) {
-            .main-container {
-                flex-direction: row;
-                padding: 15px 30px;
-                gap: 30px;
-                height: calc(100vh - 200px);
-            }
-
-            .nav-section {
-                width: 250px;
-                flex-shrink: 0;
-            }
-
-            .content-section {
-                max-height: none;
-            }
-
-            .display-wrapper {
-                height: 100%;
-                max-height: 550px;
-            }
-
-            h1 {
-                font-size: 3.5em;
-            }
-
-            .subtitle {
-                font-size: 1.3em;
-            }
-
-            header {
-                text-align: left;
-                padding: 50px 30px 10px;
-            }
-
-            .header-divider {
-                margin: 0 30px;
-            }
-
-            .nav-btn {
-                padding: 15px;
-                font-size: 1.4em;
-            }
+        .blog-title {
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #fff;
         }
 
-        /* Mobile optimizations */
+        .blog-excerpt {
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        /* Responsive - Tablet */
         @media (max-width: 768px) {
-            header {
-                padding: 45px 10px 5px;
-            }
-
             h1 {
-                font-size: 1.5em;
-                margin-bottom: 3px;
+                font-size: 36px;
+                letter-spacing: 0.1em;
             }
 
             .subtitle {
-                font-size: 0.75em;
-                margin-bottom: 5px;
+                font-size: 16px;
             }
 
-            .header-divider {
-                height: 25px;
-                margin: 0 10px;
-            }
-
-            .main-container {
-                padding: 8px;
-                gap: 8px;
-                height: calc(100vh - 160px);
-            }
-
-            .content-section {
-                max-height: 60vh;
-            }
-
-            .display-wrapper {
-                max-height: 400px;
-            }
-
-            .nav-section {
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-                gap: 0;
-                width: 100%;
-            }
-
-            .nav-btn {
-                font-size: 0.85em;
-                padding: 8px 4px;
-                border: 2px solid #fff;
-                border-right: none;
-            }
-
-            .nav-btn:first-child {
-                border-left: 2px solid #fff;
-            }
-
-            .nav-btn:last-child {
-                border-right: 2px solid #fff;
-                border-bottom: 2px solid #fff;
-            }
-
-            .terminal-content {
-                font-size: 11px;
-                padding: 12px 10px;
-                line-height: 1.6;
-            }
-
-            .terminal-header {
-                font-size: 14px;
-                margin: 15px 0 10px;
-            }
-
-            .terminal-subheader {
-                font-size: 13px;
-                margin: 12px 0 8px;
-            }
-
-            .project-block,
-            .blog-block,
-            .contact-info {
-                margin: 10px 0;
-                padding: 10px;
-            }
-
-            .tag {
-                padding: 3px 8px;
-                margin: 3px 3px 3px 0;
-                font-size: 10px;
-            }
-
-            .skill-bar-terminal {
-                height: 18px;
-                margin: 6px 0 12px 0;
-            }
-
-            .skill-fill-terminal {
-                font-size: 10px;
-                padding-left: 8px;
-            }
-
-            .play-button {
-                font-size: 1.1em;
-                top: 10px;
-                right: 10px;
-                gap: 5px;
+            header {
+                padding: 50px 20px 15px;
             }
 
             .status-indicator {
-                width: 12px;
-                height: 12px;
-                top: 10px;
-                left: 10px;
+                top: 20px;
+                left: 15px;
+                width: 16px;
+                height: 16px;
             }
 
-            .score {
+            .play-button {
+                top: 50px;
+                right: 20px;
+                font-size: 1.2em;
+            }
+
+            .header-divider {
+                margin: 0 20px;
+                height: 30px;
+            }
+
+            .header-dino {
+                width: 28px;
+                height: 28px;
+                top: -24px;
+            }
+
+            .main-container {
+                grid-template-columns: 140px 1fr;
+                padding: 20px;
+                gap: 12px;
+                min-height: auto;
+            }
+
+            .nav-section {
+                gap: 10px;
+            }
+
+            .nav-btn {
+                padding: 14px 8px;
+                font-size: 1em;
+                border: 2px solid #000;
+            }
+
+            .nav-btn:last-child {
+                border-bottom: 2px solid #000;
+            }
+
+            .nav-btn:hover,
+            .nav-btn.active {
+                border: 2px solid #fff;
+            }
+
+            .content-display {
+                height: 450px;
+                max-height: 450px;
+                min-height: 450px;
+            }
+
+            .high-score {
+                font-size: 0.75em;
+                top: 10px;
+                right: 15px;
+            }
+
+            .game-canvas,
+            .game-canvas iframe {
+                min-height: 450px;
+            }
+
+            .terminal-content {
+                padding: 20px 15px;
+                font-size: 13px;
+                line-height: 1.6;
+                max-height: 450px;
+            }
+
+            .terminal-header {
+                font-size: 1.1em;
+                margin: 15px 0 10px 0;
+            }
+
+            .contact-grid {
+                grid-template-columns: 90px 1fr;
+                gap: 10px;
+                font-size: 0.9em;
+            }
+
+            .project-card,
+            .blog-post {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .project-title,
+            .blog-title {
+                font-size: 1.1em;
+            }
+
+            .project-tech,
+            .blog-date {
+                font-size: 0.85em;
+            }
+
+            .skill-bar {
+                height: 18px;
+            }
+
+            .skill-fill {
+                font-size: 0.75em;
+                padding-right: 6px;
+            }
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 28px;
+                letter-spacing: 0.08em;
+            }
+
+            .subtitle {
+                font-size: 13px;
+            }
+
+            header {
+                padding: 45px 15px 12px;
+            }
+
+            .status-indicator {
+                top: 15px;
+                left: 12px;
+                width: 14px;
+                height: 14px;
+            }
+
+            .play-button {
+                top: 42px;
+                right: 15px;
+                font-size: 1em;
+            }
+
+            .header-divider {
+                margin: 0 15px;
+                height: 25px;
+            }
+
+            .header-dino {
+                width: 24px;
+                height: 24px;
+                top: -20px;
+            }
+
+            .main-container {
+                grid-template-columns: 110px 1fr;
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .nav-section {
+                gap: 8px;
+            }
+
+            .nav-btn {
+                padding: 12px 6px;
+                font-size: 0.9em;
+                border: 2px solid #000;
+            }
+
+            .content-display {
+                height: 380px;
+                max-height: 380px;
+                min-height: 380px;
+                border: 2px solid #fff;
+            }
+
+            .high-score {
+                font-size: 0.65em;
+                top: 8px;
+                right: 12px;
+            }
+
+            .game-canvas,
+            .game-canvas iframe {
+                min-height: 380px;
+            }
+
+            .terminal-content {
+                padding: 15px 12px;
+                font-size: 12px;
+                line-height: 1.5;
+                max-height: 380px;
+            }
+
+            .terminal-header {
+                font-size: 1em;
+                margin: 12px 0 8px 0;
+            }
+
+            .terminal-subheader {
+                font-size: 0.95em;
+            }
+
+            .contact-grid {
+                grid-template-columns: 75px 1fr;
+                gap: 8px;
+                font-size: 0.85em;
+                margin-bottom: 12px;
+            }
+
+            .project-card,
+            .blog-post {
+                padding: 12px;
+                margin-bottom: 12px;
+                border-radius: 6px;
+            }
+
+            .project-card {
+                border: 1px solid #333;
+            }
+
+            .blog-post {
+                border-left: 3px solid #00ff9f;
+            }
+
+            .project-title,
+            .blog-title {
+                font-size: 1em;
+                margin-bottom: 8px;
+            }
+
+            .project-tech,
+            .blog-date {
                 font-size: 0.8em;
-                top: 10px;
-                right: 10px;
+                margin: 8px 0;
             }
 
-            .dino-sprite {
-                width: 35px;
-                height: 38px;
+            .project-description,
+            .blog-excerpt {
+                font-size: 0.9em;
+                line-height: 1.5;
+                margin: 8px 0;
+            }
+
+            .skill-category {
+                margin-bottom: 18px;
+            }
+
+            .skill-item {
+                margin-bottom: 12px;
+            }
+
+            .skill-name {
+                font-size: 0.9em;
+                margin-bottom: 6px;
+            }
+
+            .skill-bar {
+                height: 16px;
+            }
+
+            .skill-fill {
+                font-size: 0.7em;
+                padding-right: 5px;
             }
         }
 
-        /* Glitch effect */
-        .glitch {
-            position: relative;
+        /* Responsive - Very Small Mobile */
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 11px;
+            }
+
+            .main-container {
+                grid-template-columns: 95px 1fr;
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .nav-btn {
+                padding: 10px 4px;
+                font-size: 0.85em;
+            }
+
+            .content-display {
+                height: 340px;
+                max-height: 340px;
+                min-height: 340px;
+            }
+
+            .game-canvas,
+            .game-canvas iframe {
+                min-height: 340px;
+            }
+
+            .terminal-content {
+                padding: 12px 10px;
+                font-size: 11px;
+                max-height: 340px;
+            }
+
+            .contact-grid {
+                grid-template-columns: 65px 1fr;
+                font-size: 0.8em;
+            }
         }
 
-        .glitch:hover::before,
-        .glitch:hover::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        /* Scrollbar Styling */
+        .terminal-content::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .glitch:hover::before {
-            animation: glitch 0.3s infinite;
-            color: #00ff9f;
-            z-index: -1;
+        .terminal-content::-webkit-scrollbar-track {
+            background: #111;
         }
 
-        .glitch:hover::after {
-            animation: glitch 0.3s infinite reverse;
-            color: #ff00ff;
-            z-index: -2;
+        .terminal-content::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
         }
 
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
+        .terminal-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
 <body>
     <div class="status-indicator"></div>
-    <button class="play-button" onclick="toggleGame()">
-        <span id="playIcon">PLAY<span style="display: inline-block; margin-left: 5px;">▶||</span></span>
-    </button>
+    <button class="play-button" id="playBtn">PLAY ▶||</button>
 
     <header>
-        <h1 class="glitch" data-text="ADLER NUNEZ">ADLER NUNEZ</h1>
+        <h1>ADLER NUNEZ</h1>
         <div class="subtitle">Embedded Systems Engineer</div>
     </header>
 
     <div class="header-divider">
-        <svg class="header-dino" viewBox="0 0 44 47">
-            <path d="M22 0h2v2h2v2h2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h-2v2h-2v2h-2v-2h-2v-2h-2v2h-2v2h-2v-2h2v-2h-4v-4h-2v-4h-2v-2h-2v-2h-2v-2h-2v-4h-2v-6h2v-2h4v-2h2v-2h2v-2h2v-2h2v-2h2V0z" fill="#535353"/>
-        </svg>
-        <svg class="header-obstacle" viewBox="0 0 20 40">
-            <path d="M8 0h4v2h2v6h-2v2h2v6h2v-6h2v-2h2v-6h2v26h-2v2h-2v2h-8v-2H8v-2H6V8h2V6h2V2H8V0z" fill="#535353"/>
+        <svg class="header-dino" viewBox="0 0 44 47" fill="none">
+            <path d="M35 0h2v2h-2zM37 2h2v2h-2zM39 4h2v2h-2zM41 6h2v2h-2zM39 8h2v2h-2zM37 10h2v2h-2zM39 10h2v2h-2zM41 10h2v2h-2zM35 12h2v2h-2zM37 12h2v2h-2zM39 12h2v2h-2zM41 12h2v2h-2zM33 14h2v2h-2zM35 14h2v2h-2zM37 14h2v2h-2zM39 14h2v2h-2zM41 14h2v2h-2zM31 16h2v2h-2zM33 16h2v2h-2zM35 16h2v2h-2zM37 16h2v2h-2zM39 16h2v2h-2zM41 16h2v2h-2zM25 18h2v2h-2zM27 18h2v2h-2zM29 18h2v2h-2zM31 18h2v2h-2zM33 18h2v2h-2zM35 18h2v2h-2zM37 18h2v2h-2zM39 18h2v2h-2zM41 18h2v2h-2zM15 20h2v2h-2zM17 20h2v2h-2zM19 20h2v2h-2zM21 20h2v2h-2zM23 20h2v2h-2zM25 20h2v2h-2zM27 20h2v2h-2zM29 20h2v2h-2zM31 20h2v2h-2zM33 20h2v2h-2zM35 20h2v2h-2zM37 20h2v2h-2zM39 20h2v2h-2zM41 20h2v2h-2zM15 22h2v2h-2zM17 22h2v2h-2zM19 22h2v2h-2zM21 22h2v2h-2zM23 22h2v2h-2zM25 22h2v2h-2zM27 22h2v2h-2zM29 22h2v2h-2zM31 22h2v2h-2zM33 22h2v2h-2zM35 22h2v2h-2zM37 22h2v2h-2zM39 22h2v2h-2zM15 24h2v2h-2zM17 24h2v2h-2zM19 24h2v2h-2zM21 24h2v2h-2zM23 24h2v2h-2zM25 24h2v2h-2zM27 24h2v2h-2zM29 24h2v2h-2zM31 24h2v2h-2zM33 24h2v2h-2zM35 24h2v2h-2zM37 24h2v2h-2zM17 26h2v2h-2zM19 26h2v2h-2zM21 26h2v2h-2zM23 26h2v2h-2zM25 26h2v2h-2zM27 26h2v2h-2zM29 26h2v2h-2zM31 26h2v2h-2zM33 26h2v2h-2zM35 26h2v2h-2zM37 26h2v2h-2zM19 28h2v2h-2zM21 28h2v2h-2zM23 28h2v2h-2zM27 28h2v2h-2zM29 28h2v2h-2zM33 28h2v2h-2zM35 28h2v2h-2zM19 30h2v2h-2zM21 30h2v2h-2zM27 30h2v2h-2zM29 30h2v2h-2zM33 30h2v2h-2zM35 30h2v2h-2zM19 32h2v2h-2zM21 32h2v2h-2zM27 32h2v2h-2zM29 32h2v2h-2zM33 32h2v2h-2zM35 32h2v2h-2zM17 34h2v2h-2zM19 34h2v2h-2zM27 34h2v2h-2zM29 34h2v2h-2zM33 34h2v2h-2zM35 34h2v2h-2zM15 36h2v2h-2zM17 36h2v2h-2zM27 36h2v2h-2zM29 36h2v2h-2zM33 36h2v2h-2zM35 36h2v2h-2zM13 38h2v2h-2zM15 38h2v2h-2zM27 38h2v2h-2zM29 38h2v2h-2zM33 38h2v2h-2zM35 38h2v2h-2zM11 40h2v2h-2zM13 40h2v2h-2zM27 40h2v2h-2zM29 40h2v2h-2zM33 40h2v2h-2zM35 40h2v2h-2zM9 42h2v2H9zM11 42h2v2h-2zM27 42h2v2h-2zM29 42h2v2h-2zM33 42h2v2h-2zM35 42h2v2h-2zM7 44h2v2H7zM9 44h2v2H9zM11 44h2v2h-2zM13 44h2v2h-2zM15 44h2v2h-2zM17 44h2v2h-2zM27 44h2v2h-2zM29 44h2v2h-2zM33 44h2v2h-2zM35 44h2v2h-2z" fill="#535353"/>
         </svg>
     </div>
 
     <div class="main-container">
+        <!-- Navigation -->
         <div class="nav-section">
-            <button class="nav-btn active" data-section="about">About</button>
+            <button class="nav-btn" data-section="about">About</button>
             <button class="nav-btn" data-section="projects">Projects</button>
             <button class="nav-btn" data-section="skills">Skills</button>
             <button class="nav-btn" data-section="contact">Contact</button>
             <button class="nav-btn" data-section="blogs">Blogs</button>
         </div>
 
-        <div class="content-section">
-            <div class="display-wrapper">
-                <!-- Dino Game -->
-                <div class="game-canvas" id="gameCanvas">
-                    <div class="score" id="score">HI 00000 00000</div>
-                    <div class="ground"></div>
-                    
-                    <svg class="dino-sprite" id="dino" viewBox="0 0 44 47">
-                        <path d="M22 0h2v2h2v2h2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h2v2h2v2h4v2h-2v2h-2v2h-2v2h-2v2h-2v2h-2v-2h-2v-2h-2v2h-2v2h-2v-2h2v-2h-4v-4h-2v-4h-2v-2h-2v-2h-2v-2h-2v-4h-2v-6h2v-2h4v-2h2v-2h2v-2h2v-2h2v-2h2V0z" fill="#535353"/>
-                    </svg>
-                    
-                    <svg class="cloud" style="top: 50px; width: 46px; height: 14px; animation-delay: 0s;" viewBox="0 0 46 14">
-                        <path d="M20 0h4v2h2v2h8v-2h2v-2h4v2h2v2h2v8h-2v2H4v-2H2V6h2V4h2V2h8v2h2V2h4V0z" fill="#535353"/>
-                    </svg>
-                    
-                    <svg class="cloud" style="top: 80px; width: 46px; height: 14px; animation-delay: 5s;" viewBox="0 0 46 14">
-                        <path d="M20 0h4v2h2v2h8v-2h2v-2h4v2h2v2h2v8h-2v2H4v-2H2V6h2V4h2V2h8v2h2V2h4V0z" fill="#535353"/>
-                    </svg>
+        <!-- Content Display -->
+        <div class="content-display">
+            <div class="high-score">HI 00241 00000</div>
 
-                    <svg class="cactus-svg" style="right: 200px; bottom: 0; position: absolute;">
-                        <path d="M15 10h5v5h5v10h-5v5h-5v-5h-5v-10h5z" fill="#535353"/>
-                    </svg>
+            <!-- Dino Game (Default) -->
+            <div class="game-canvas active" id="gameCanvas">
+                <iframe src="https://chromedino.com/" frameborder="0" scrolling="no" width="100%" height="100%" loading="lazy"></iframe>
+            </div>
 
-                    <svg class="obstacle" id="obstacle" viewBox="0 0 20 40">
-                        <path d="M8 0h4v2h2v6h-2v2h2v6h2v-6h2v-2h2v-6h2v26h-2v2h-2v2h-8v-2H8v-2H6V8h2V6h2V2H8V0z" fill="#535353"/>
-                    </svg>
+            <!-- About Section -->
+            <div class="terminal-content" id="terminal-about">
+                <div class="terminal-line" style="animation-delay: 0.1s;">
+                    <span class="terminal-prompt">$</span> cat about.txt
+                </div>
+                <br>
+                <div class="terminal-line" style="animation-delay: 0.2s;">
+                    <div class="terminal-header">About Me</div>
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.3s;">
+                    Passionate embedded systems engineer with 5+ years of experience in microcontroller programming, 
+                    PCB design, and IoT solutions. I specialize in creating efficient, reliable systems that bridge 
+                    hardware and software to solve real-world problems.
+                </div>
+                <br>
+                <div class="terminal-line" style="animation-delay: 0.4s;">
+                    <div class="terminal-header">Expertise</div>
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.5s;">
+                    • Firmware Development (C/C++, Assembly)
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.6s;">
+                    • Real-Time Operating Systems (FreeRTOS, Zephyr)
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.7s;">
+                    • PCB Design & Hardware Debugging
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.8s;">
+                    • Communication Protocols (I2C, SPI, UART, CAN, Modbus)
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.9s;">
+                    • IoT & Wireless Systems (MQTT, WiFi, BLE, LoRa)
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.0s;">
+                    • Power Optimization & Battery Management
+                </div>
+            </div>
 
-                    <div class="game-over" id="gameOver">GAME OVER<br><small style="font-size: 0.5em;">Press SPACE to restart</small></div>
+            <!-- Projects Section -->
+            <div class="terminal-content" id="terminal-projects">
+                <div class="terminal-line" style="animation-delay: 0.1s;">
+                    <span class="terminal-prompt">$</span> ls -la ~/projects/
+                </div>
+                <br>
+                
+                <div class="terminal-line" style="animation-delay: 0.2s;">
+                    <div class="project-card">
+                        <div class="project-title">Smart Home Automation System</div>
+                        <div class="project-tech">ESP32 | MQTT | C++ | FreeRTOS | AWS IoT</div>
+                        <div class="project-description">
+                            Developed a complete IoT-based home automation system using ESP32 microcontrollers 
+                            with MQTT protocol for real-time control and monitoring of lights, temperature, 
+                            and security systems.
+                        </div>
+                        <div class="project-description">
+                            <strong>Challenge:</strong> Ensuring reliable connectivity in low-signal areas and 
+                            optimizing power consumption for battery-operated sensors.
+                        </div>
+                        <div class="project-description">
+                            <strong>Solution:</strong> Implemented WiFi mesh networking and deep sleep modes, 
+                            achieving 3+ months of battery life and 99.5% uptime.
+                        </div>
+                    </div>
                 </div>
 
-                <!-- About Terminal -->
-                <div class="terminal-content active" id="terminal-about">
-                    <div class="terminal-line" style="animation-delay: 0.1s;">
-                        <span class="terminal-prompt">$</span> cat about.txt
+                <div class="terminal-line" style="animation-delay: 0.4s;">
+                    <div class="project-card">
+                        <div class="project-title">Industrial Temperature Monitoring System</div>
+                        <div class="project-tech">STM32 | I2C | Modbus RTU | Python | PostgreSQL</div>
+                        <div class="project-description">
+                            Multi-sensor temperature monitoring system for industrial environments with 
+                            real-time alerts, data logging, and trend analysis capabilities.
+                        </div>
+                        <div class="project-description">
+                            <strong>Results:</strong> Deployed in 10+ facilities, reduced equipment failures 
+                            by 40% through predictive maintenance alerts.
+                        </div>
                     </div>
+                </div>
+
+                <div class="terminal-line" style="animation-delay: 0.6s;">
+                    <div class="project-card">
+                        <div class="project-title">Custom Motor Controller PCB</div>
+                        <div class="project-tech">KiCAD | STM32F4 | CAN Bus | PWM | H-Bridge</div>
+                        <div class="project-description">
+                            High-precision brushless motor controller for robotics applications with CAN bus 
+                            communication and advanced PWM control algorithms.
+                        </div>
+                        <div class="project-description">
+                            <strong>Features:</strong> 4-layer PCB design, EMI shielding, thermal management, 
+                            overcurrent protection, and field-oriented control (FOC) implementation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="terminal-content" id="terminal-skills">
+                <div class="terminal-line" style="animation-delay: 0.1s;">
+                    <span class="terminal-prompt">$</span> cat ~/.config/skills.conf
+                </div>
+                <br>
+                
+                <div class="skill-category">
                     <div class="terminal-line" style="animation-delay: 0.2s;">
-                        <div class="terminal-header">ABOUT</div>
+                        <div class="terminal-header">[Languages]</div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 0.3s;">
-                        Embedded systems engineer specializing in IoT solutions, real-time firmware development, and hardware-software integration. Passionate about creating efficient, scalable systems that bridge the physical and digital worlds.
-                    </div>
-                    <br>
-                    <div class="terminal-line" style="animation-delay: 0.5s;">
-                        With expertise in STM32 and ESP32 microcontrollers, I design and develop solutions ranging from sensor networks to complex automation systems. My approach combines low-level programming skills with modern development practices to deliver robust, production-ready embedded applications.
-                    </div>
-                    <br>
-                    <div class="terminal-line" style="animation-delay: 0.7s;">
-                        <div class="terminal-header">SPECIALIZATIONS</div>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 0.8s;">
-                        • STM32 Firmware Development
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 0.9s;">
-                        • ESP32 IoT Systems
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.0s;">
-                        • PCB Design & Prototyping
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.1s;">
-                        • Sensor Integration & Data Acquisition
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.2s;">
-                        • Wireless Communication (BLE, WiFi, LoRa)
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.3s;">
-                        • Real-Time Operating Systems (FreeRTOS)
-                    </div>
-                </div>
-
-                <!-- Projects Terminal -->
-                <div class="terminal-content" id="terminal-projects">
-                    <div class="terminal-line" style="animation-delay: 0.1s;">
-                        <span class="terminal-prompt">$</span> ls -la projects/
-                    </div>
-                    <br>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.2s;">
-                        <div class="project-block">
-                            <div class="terminal-subheader">IoT Smart Parking System</div>
-                            Real-time parking availability monitoring system using ESP32 and ultrasonic sensors. Features cloud connectivity, mobile app integration, and predictive analytics.
-                            <br><br>
-                            <span class="tag">ESP32</span><span class="tag">MQTT</span><span class="tag">Cloud-IoT</span><span class="tag">Mobile-App</span>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.4s;">
-                        <div class="project-block">
-                            <div class="terminal-subheader">Audio Processing Unit</div>
-                            Custom DSP implementation on STM32H7 for real-time audio filtering and effects. Includes FFT analysis, parametric EQ, and dynamic range compression.
-                            <br><br>
-                            <span class="tag">STM32H7</span><span class="tag">DSP</span><span class="tag">I2S</span><span class="tag">CMSIS-DSP</span>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.6s;">
-                        <div class="project-block">
-                            <div class="terminal-subheader">Mesh Network Implementation</div>
-                            Self-healing wireless sensor network using ESP32 nodes. Implements custom routing protocol optimized for low-power operation and extended range.
-                            <br><br>
-                            <span class="tag">ESP-MESH</span><span class="tag">WiFi</span><span class="tag">Low-Power</span><span class="tag">Networking</span>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.8s;">
-                        <div class="project-block">
-                            <div class="terminal-subheader">Environmental Monitoring Station</div>
-                            Multi-sensor data logger with STM32L4 for temperature, humidity, air quality, and atmospheric pressure monitoring. Features SD card storage and LoRaWAN connectivity.
-                            <br><br>
-                            <span class="tag">STM32L4</span><span class="tag">LoRaWAN</span><span class="tag">Sensors</span><span class="tag">Data-Logging</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Skills Terminal -->
-                <div class="terminal-content" id="terminal-skills">
-                    <div class="terminal-line" style="animation-delay: 0.1s;">
-                        <span class="terminal-prompt">$</span> cat skills.conf
-                    </div>
-                    <br>
-                    <div class="terminal-line" style="animation-delay: 0.2s;">
-                        <div class="terminal-header">[HARDWARE]</div>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 0.3s;">
-                        STM32/ESP32
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>C/C++</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="95">95%</div>
+                            </div>
                         </div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 0.4s;">
-                        Circuit Design
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="75" style="width: 0%;">75%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>Python</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="85">85%</div>
+                            </div>
                         </div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 0.5s;">
-                        PCB Layout
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="70" style="width: 0%;">70%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>Assembly (ARM Cortex-M)</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="80">80%</div>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="skill-category">
                     <div class="terminal-line" style="animation-delay: 0.6s;">
-                        Sensor Integration
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="85" style="width: 0%;">85%</div>
-                        </div>
+                        <div class="terminal-header">[Microcontrollers]</div>
                     </div>
-                    <br>
                     <div class="terminal-line" style="animation-delay: 0.7s;">
-                        <div class="terminal-header">[SOFTWARE]</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>STM32</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="90">90%</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 0.8s;">
-                        C/C++
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>ESP32</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="85">85%</div>
+                            </div>
                         </div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 0.9s;">
-                        Python
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="80" style="width: 0%;">80%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>Arduino</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="75">75%</div>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="skill-category">
                     <div class="terminal-line" style="animation-delay: 1.0s;">
-                        FreeRTOS
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="75" style="width: 0%;">75%</div>
-                        </div>
+                        <div class="terminal-header">[Protocols]</div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 1.1s;">
-                        Git/Version Control
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="85" style="width: 0%;">85%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>I2C / SPI / UART</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="90">90%</div>
+                            </div>
                         </div>
                     </div>
-                    <br>
                     <div class="terminal-line" style="animation-delay: 1.2s;">
-                        <div class="terminal-header">[PROTOCOLS]</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>CAN / Modbus</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="80">80%</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 1.3s;">
-                        I2C/SPI/UART
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>MQTT / HTTP</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="70">70%</div>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="skill-category">
                     <div class="terminal-line" style="animation-delay: 1.4s;">
-                        MQTT/HTTP
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="80" style="width: 0%;">80%</div>
-                        </div>
+                        <div class="terminal-header">[Tools & Platforms]</div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 1.5s;">
-                        BLE/WiFi
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="75" style="width: 0%;">75%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>EAGLE / KiCAD</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="75">75%</div>
+                            </div>
                         </div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 1.6s;">
-                        LoRa/LoRaWAN
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="70" style="width: 0%;">70%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>STM32CubeIDE</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="85">85%</div>
+                            </div>
                         </div>
                     </div>
-                    <br>
                     <div class="terminal-line" style="animation-delay: 1.7s;">
-                        <div class="terminal-header">[TOOLS]</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>VS Code / Git</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="90">90%</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="terminal-line" style="animation-delay: 1.8s;">
-                        EAGLE/KiCAD
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="70" style="width: 0%;">70%</div>
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>Oscilloscope / Logic Analyzer</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-level="80">80%</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="terminal-line" style="animation-delay: 1.9s;">
-                        STM32CubeIDE
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="85" style="width: 0%;">85%</div>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
+            <div class="terminal-content" id="terminal-contact">
+                <div class="terminal-line" style="animation-delay: 0.1s;">
+                    <span class="terminal-prompt">$</span> cat contact.vcard
+                </div>
+                <br>
+                <div class="terminal-line" style="animation-delay: 0.2s;">
+                    <div class="terminal-header">Contact Information</div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.3s;">
+                    <div class="contact-grid">
+                        <div class="contact-label">Email</div>
+                        <div class="contact-value"><a href="mailto:adler@example.com">adler@example.com</a></div>
+                    </div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.4s;">
+                    <div class="contact-grid">
+                        <div class="contact-label">GitHub</div>
+                        <div class="contact-value"><a href="https://github.com/adlernunez" target="_blank">github.com/adlernunez</a></div>
+                    </div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.5s;">
+                    <div class="contact-grid">
+                        <div class="contact-label">LinkedIn</div>
+                        <div class="contact-value"><a href="https://linkedin.com/in/adlernunez" target="_blank">linkedin.com/in/adlernunez</a></div>
+                    </div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.6s;">
+                    <div class="contact-grid">
+                        <div class="contact-label">Location</div>
+                        <div class="contact-value">Bengaluru, Karnataka, India</div>
+                    </div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.7s;">
+                    <div class="contact-grid">
+                        <div class="contact-label">Phone</div>
+                        <div class="contact-value">+91 98765 43210</div>
+                    </div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.8s;">
+                    <div class="contact-grid">
+                        <div class="contact-label">Status</div>
+                        <div class="contact-value" style="color: #00ff9f;">OPEN TO WORK</div>
+                    </div>
+                </div>
+                
+                <br>
+                <div class="terminal-line" style="animation-delay: 0.9s;">
+                    <div class="terminal-header">Open For Opportunities</div>
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.0s;">
+                    • Embedded Systems Development
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.1s;">
+                    • IoT Solution Architecture
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.2s;">
+                    • Firmware Consulting & Code Review
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.3s;">
+                    • Technical Collaboration & Partnerships
+                </div>
+            </div>
+
+            <!-- Blogs Section -->
+            <div class="terminal-content" id="terminal-blogs">
+                <div class="terminal-line" style="animation-delay: 0.1s;">
+                    <span class="terminal-prompt">$</span> ls -t ~/blog/ | head -5
+                </div>
+                <br>
+                
+                <div class="terminal-line" style="animation-delay: 0.2s;">
+                    <div class="blog-post">
+                        <div class="blog-date">[2024-12-15]</div>
+                        <div class="blog-title">Optimizing Power Consumption in ESP32 Applications</div>
+                        <div class="blog-excerpt">
+                            A deep dive into ESP32 power modes and practical strategies for achieving 
+                            months of battery life in IoT devices. Includes code examples, measurement 
+                            data, and real-world case studies from production deployments.
                         </div>
                     </div>
-                    <div class="terminal-line" style="animation-delay: 2.0s;">
-                        VS Code
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="90" style="width: 0%;">90%</div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.4s;">
+                    <div class="blog-post">
+                        <div class="blog-date">[2024-11-28]</div>
+                        <div class="blog-title">Building a Custom RTOS Task Scheduler from Scratch</div>
+                        <div class="blog-excerpt">
+                            Exploring the internals of FreeRTOS and implementing a minimal cooperative 
+                            task scheduler from scratch. Learn about context switching, priority scheduling, 
+                            and semaphore implementation on ARM Cortex-M processors.
                         </div>
                     </div>
-                    <div class="terminal-line" style="animation-delay: 2.1s;">
-                        Oscilloscope/Logic Analyzer
-                        <div class="skill-bar-terminal">
-                            <div class="skill-fill-terminal skill-anim" data-level="80" style="width: 0%;">80%</div>
+                </div>
+                
+                <div class="terminal-line" style="animation-delay: 0.6s;">
+                    <div class="blog-post">
+                        <div class="blog-date">[2024-10-10]</div>
+                        <div class="blog-title">PCB Design Best Practices for STM32 Microcontrollers</div>
+                        <div class="blog-excerpt">
+                            Comprehensive guidelines for power supply design, decoupling capacitor placement, 
+                            signal integrity considerations, and EMI mitigation techniques when designing 
+                            boards with high-speed microcontrollers.
                         </div>
                     </div>
                 </div>
 
-                <!-- Contact Terminal -->
-                <div class="terminal-content" id="terminal-contact">
-                    <div class="terminal-line" style="animation-delay: 0.1s;">
-                        <span class="terminal-prompt">$</span> cat contact.info
-                    </div>
-                    <br>
-                    <div class="terminal-line" style="animation-delay: 0.2s;">
-                        <div class="terminal-header">CONTACT INFORMATION</div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.3s;">
-                        <div class="contact-info">
-                            <div class="contact-label">EMAIL</div>
-                            <div class="contact-value">your.email@example.com</div>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.4s;">
-                        <div class="contact-info">
-                            <div class="contact-label">GITHUB</div>
-                            <div class="contact-value">github.com/yourusername</div>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.5s;">
-                        <div class="contact-info">
-                            <div class="contact-label">LINKEDIN</div>
-                            <div class="contact-value">linkedin.com/in/yourprofile</div>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.6s;">
-                        <div class="contact-info">
-                            <div class="contact-label">LOCATION</div>
-                            <div class="contact-value">Bengaluru, IN</div>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.7s;">
-                        <div class="contact-info">
-                            <div class="contact-label">PHONE</div>
-                            <div class="contact-value">+91 98765 43210</div>
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.8s;">
-                        <div class="contact-info">
-                            <div class="contact-label">STATUS</div>
-                            <div class="contact-value">OPEN TO WORK</div>
-                        </div>
-                    </div>
-                    
-                    <br>
-                    <div class="terminal-line" style="animation-delay: 0.9s;">
-                        <div class="terminal-header">OPEN FOR OPPORTUNITIES</div>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.0s;">
-                        • Embedded Systems Development
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.1s;">
-                        • IoT Solution Architecture
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.2s;">
-                        • Firmware Consulting
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.3s;">
-                        • Technical Collaboration
-                    </div>
-                </div>
-
-                <!-- Blogs Terminal -->
-                <div class="terminal-content" id="terminal-blogs">
-                    <div class="terminal-line" style="animation-delay: 0.1s;">
-                        <span class="terminal-prompt">$</span> ls -t blog/
-                    </div>
-                    <br>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.2s;">
-                        <div class="blog-block">
-                            <div class="date">[2024-12-15]</div>
-                            <div class="terminal-subheader">Optimizing Power Consumption in ESP32 Applications</div>
-                            Deep dive into ESP32 power modes and practical strategies for achieving months of battery life in IoT devices. Includes code examples and measurement data.
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.4s;">
-                        <div class="blog-block">
-                            <div class="date">[2024-11-28]</div>
-                            <div class="terminal-subheader">Building a Custom RTOS Task Scheduler</div>
-                            Exploring the internals of FreeRTOS and implementing a minimal cooperative task scheduler from scratch for educational purposes.
-                        </div>
-                    </div>
-                    
-                    <div class="terminal-line" style="animation-delay: 0.6s;">
-                        <div class="blog-block">
-                            <div class="date">[2024-10-10]</div>
-                            <div class="terminal-subheader">PCB Design Best Practices for STM32</div>
-                            Guidelines for power supply design, decoupling, signal integrity, and EMI considerations when designing boards with high-speed microcontrollers.
+                <div class="terminal-line" style="animation-delay: 0.8s;">
+                    <div class="blog-post">
+                        <div class="blog-date">[2024-09-05]</div>
+                        <div class="blog-title">Implementing Secure Boot on STM32 Devices</div>
+                        <div class="blog-excerpt">
+                            Step-by-step guide to implementing secure boot mechanisms, firmware encryption, 
+                            and over-the-air (OTA) updates for STM32-based products. Includes threat modeling 
+                            and security best practices.
                         </div>
                     </div>
                 </div>
@@ -963,39 +1139,46 @@
         </div>
     </div>
 
-    <script>
+   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prevent spacebar from scrolling or triggering game
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && e.target === document.body) {
+                e.preventDefault();
+            }
+        });
+
         const navButtons = document.querySelectorAll('.nav-btn');
         const terminals = document.querySelectorAll('.terminal-content');
         const gameCanvas = document.getElementById('gameCanvas');
-        let idleTimer;
-        const IDLE_TIME = 15000;
+        const playBtn = document.getElementById('playBtn');
+        
+        let lastActiveSection = null;
 
-        function toggleGame() {
+        // Play/Pause button handler
+        playBtn.addEventListener('click', function() {
             if (gameCanvas.classList.contains('active')) {
-                hideGame();
-                const activeBtn = document.querySelector('.nav-btn.active');
-                if (activeBtn) {
-                    showSection(activeBtn.dataset.section);
+                // Game is active, switch to last viewed section
+                if (lastActiveSection) {
+                    const btn = document.querySelector(`[data-section="${lastActiveSection}"]`);
+                    if (btn) {
+                        btn.click();
+                    }
                 }
             } else {
+                // Content is active, switch to game
                 showDinoGame();
             }
-        }
+        });
 
         function showDinoGame() {
             terminals.forEach(t => t.classList.remove('active'));
             gameCanvas.classList.add('active');
             navButtons.forEach(b => b.classList.remove('active'));
-            resetGame();
         }
 
         function hideGame() {
             gameCanvas.classList.remove('active');
-        }
-
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(showDinoGame, IDLE_TIME);
         }
 
         function showSection(section) {
@@ -1005,15 +1188,16 @@
             const terminal = document.getElementById(`terminal-${section}`);
             if (terminal) {
                 terminal.classList.add('active');
+                lastActiveSection = section;
                 
+                // Animate skills if skills section
                 if (section === 'skills') {
-                    setTimeout(animateSkills, 500);
+                    setTimeout(animateSkills, 100);
                 }
             }
-            
-            resetIdleTimer();
         }
 
+        // Navigation button handlers
         navButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const section = btn.dataset.section;
@@ -1025,118 +1209,17 @@
             });
         });
 
+        // Animate skill progress bars
         function animateSkills() {
-            const skillFills = document.querySelectorAll('.skill-anim');
+            const skillFills = document.querySelectorAll('.skill-fill');
             skillFills.forEach((fill, index) => {
                 setTimeout(() => {
                     const level = fill.dataset.level;
                     fill.style.width = level + '%';
-                }, index * 100);
+                }, index * 80);
             });
         }
-
-        // Dino Game Logic
-        const dino = document.getElementById('dino');
-        const obstacle = document.getElementById('obstacle');
-        const scoreDisplay = document.getElementById('score');
-        const gameOverDisplay = document.getElementById('gameOver');
-        
-        let isJumping = false;
-        let isGameOver = false;
-        let score = 0;
-        let highScore = 0;
-        let gameLoop;
-        let obstacleSpeed = 2;
-
-        function jump() {
-            if (isJumping || isGameOver) return;
-            
-            isJumping = true;
-            dino.classList.add('jumping');
-            
-            setTimeout(() => {
-                dino.classList.remove('jumping');
-                isJumping = false;
-            }, 500);
-        }
-
-        function checkCollision() {
-            const dinoRect = dino.getBoundingClientRect();
-            const obstacleRect = obstacle.getBoundingClientRect();
-            
-            if (
-                dinoRect.left < obstacleRect.right &&
-                dinoRect.right > obstacleRect.left &&
-                dinoRect.bottom > obstacleRect.top
-            ) {
-                endGame();
-            }
-        }
-
-        function updateScore() {
-            if (!isGameOver) {
-                score++;
-                if (score > highScore) {
-                    highScore = score;
-                }
-                scoreDisplay.textContent = `HI ${highScore.toString().padStart(5, '0')} ${score.toString().padStart(5, '0')}`;
-                
-                if (score % 100 === 0) {
-                    obstacleSpeed += 0.2;
-                    obstacle.style.animationDuration = (2 / obstacleSpeed) + 's';
-                }
-            }
-        }
-
-        function endGame() {
-            isGameOver = true;
-            gameOverDisplay.style.display = 'block';
-            obstacle.style.animationPlayState = 'paused';
-            clearInterval(gameLoop);
-        }
-
-        function resetGame() {
-            isGameOver = false;
-            score = 0;
-            obstacleSpeed = 2;
-            gameOverDisplay.style.display = 'none';
-            obstacle.style.animationDuration = '2s';
-            obstacle.style.animationPlayState = 'running';
-            scoreDisplay.textContent = `HI ${highScore.toString().padStart(5, '0')} 00000`;
-            
-            clearInterval(gameLoop);
-            gameLoop = setInterval(() => {
-                checkCollision();
-                updateScore();
-            }, 10);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                if (isGameOver) {
-                    resetGame();
-                } else if (gameCanvas.classList.contains('active')) {
-                    jump();
-                }
-            }
-        });
-
-        gameCanvas.addEventListener('click', () => {
-            if (gameCanvas.classList.contains('active')) {
-                if (isGameOver) {
-                    resetGame();
-                } else {
-                    jump();
-                }
-            }
-        });
-
-        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            document.addEventListener(event, resetIdleTimer);
-        });
-
-        resetIdleTimer();
-    </script>
+    });
+</script>
 </body>
 </html>
